@@ -1,5 +1,5 @@
 # lss-planner.user.js
-ist ein UserScript für das Leitstellenspiel [Leitstellenspiel](https://leitstellenspiel.de), welches das Planen von Gebäuden ermöglicht.
+ist ein UserScript für das [Leitstellenspiel](https://leitstellenspiel.de), welches das Planen von Gebäuden ermöglicht.
 
 ## Wie funktioniert es ?
 Das Script fügt einen Knopf auf die Benutzeroberfläche hinzu. Dieser Knopf fügt wie beim Bau von Gebäuden einen Marker hinzu, welcher frei beweglich ist. Ist die Position gewählt, kann der Marker gespeichert werden. Dieser wandelt sich dann in einen Gebäudemarker um, durch das Klicken auf den Marker kann dieser bearbeitet oder gelöscht werden. Die Marker werden in der IndexedDB direkt im Browser gespeichert und sind auch nach einem Neuladen der Seite weiterhin vorhanden.
