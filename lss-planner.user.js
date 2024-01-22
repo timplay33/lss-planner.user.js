@@ -1,12 +1,11 @@
 // ==UserScript==
-// @name         Map test
-// @namespace    http://tampermonkey.net/
+// @name         LSS-Planner
+// @namespace    https://heidler.eu.org/
 // @version      2024-01-22
-// @description  try to take over the world!
-// @author       You
+// @description  LSS-Planner
+// @author       Tim Heidler git:@timplay33
 // @match        https://www.leitstellenspiel.de/
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=leitstellenspiel.de
-// @require      file://C:\Users\Tim%20Heidler\Documents\LSS\script\map.user.js
 // @grant        none
 // ==/UserScript==
 
