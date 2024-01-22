@@ -17,3 +17,9 @@ Die Idee hinter dem Script ist es, Gebäude, welche man sich noch nicht leisten 
 - [ ] Gebäude automatisch bauen
 
  und mehr....
+
+ ## Installation
+
+Installiere [Tampermonkey](https://www.tampermonkey.net/)
+und drücke auf den Link
+ https://github.com/timplay33/lss-planner.user.js/raw/main/lss-planner.user.js
