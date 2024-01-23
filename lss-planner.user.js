@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         LSS-Planner
 // @namespace    https://heidler.eu.org/
-// @version      2024-01-22
+// @version      0.2.0
 // @description  LSS-Planner
 // @author       Tim Heidler git:@timplay33
 // @match        https://www.leitstellenspiel.de/
@@ -399,6 +399,7 @@
 					<p id="lssp-modal-body-lat">Latitude:</p>
 					<p id="lssp-modal-body-lng">Longitude:</p>
 					<button type="submit" id="lssp-modal-form-submit" class="btn btn-default">Bearbeiten</button>
+					<button type="submit" id="lssp-modal-form-delete" data-confirm="Wirklich Löschen?" data-method="delete" class="btn btn-danger">Löschen</button>
 				</div>
 			</form>
 		</div>
@@ -532,13 +533,20 @@
 
 		$(document).ready(function () {
 			$("#lssp-modal-form").submit(function (event) {
+				console.log(event);
 				event.preventDefault();
 				let building = JSON.parse(event.target.getAttribute("data"));
-				//console.log(building);
-				event.target.addEventListener("submit", openEdit(building));
+				if (
+					event.originalEvent.submitter ==
+					document.getElementById("lssp-modal-form-delete")
+				) {
+					deleteFromDB(building.id);
+					location.reload();
+				} else {
+					openEdit(building);
+				}
 			});
 			$("#lssp-edit-modal-form").submit(function (event) {
-				console.log(event);
 				event.preventDefault();
 				let building = JSON.parse(
 					document.getElementById("lssp-edit-modal-form").getAttribute("data")
