@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         LSS-Planner
 // @namespace    https://heidler.eu.org/
-// @version      0.2.0
+// @version      0.2.1
 // @description  LSS-Planner
 // @author       Tim Heidler git:@timplay33
 // @match        https://www.leitstellenspiel.de/
@@ -516,6 +516,26 @@
 		`;
 		document.body.appendChild(modal);
 	}
+	function addMenuEntry() {
+		/** Add divider  */
+		let divider = document.createElement("li");
+		divider.setAttribute("class", "divider");
+		divider.setAttribute("role", "presentation");
+		document
+			.getElementById("logout_button")
+			.parentElement.parentElement.appendChild(divider);
+
+		/** Add button */
+		let button = document.createElement("a");
+		button.setAttribute("href", "javascript: void(0)");
+		button.setAttribute("id", "lssp-button");
+		button.append("Lss-Planner Save Download");
+		let button_li = document.createElement("li");
+		button_li.appendChild(button);
+		document
+			.getElementById("logout_button")
+			.parentElement.parentElement.appendChild(button_li);
+	}
 
 	async function main() {
 		console.log(logIndex + "Starting...");
@@ -523,7 +543,23 @@
 		addModal();
 		addEditModal();
 		addButtons();
+		addMenuEntry();
 
+		$("#lssp-button").on("click", async function () {
+			downloadObjectAsJson(await getAllFromDB(), "LSS-Planner");
+		});
+
+		function downloadObjectAsJson(exportObj, exportName) {
+			var dataStr =
+				"data:text/json;charset=utf-8," +
+				encodeURIComponent(JSON.stringify(exportObj));
+			var downloadAnchorNode = document.createElement("a");
+			downloadAnchorNode.setAttribute("href", dataStr);
+			downloadAnchorNode.setAttribute("download", exportName + ".json");
+			document.body.appendChild(downloadAnchorNode); // required for firefox
+			downloadAnchorNode.click();
+			downloadAnchorNode.remove();
+		}
 		// Placing Markers from DB
 		await getAllFromDB().then((buildings) =>
 			buildings.forEach((b) => {

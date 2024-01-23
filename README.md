@@ -19,6 +19,8 @@ Die Idee hinter dem Script ist es, Gebäude, welche man sich noch nicht leisten 
 - [x] Gebäude Übersicht
 - [x] Gebäude Namen
 - [x] Gebäude Löschen
+- [x] Gebäude daten als Json speichern
+- [ ] Gebäude daten aus Json auslesen
 - [ ] Gebäude automatisch bauen
 
 und mehr....
