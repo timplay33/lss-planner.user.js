@@ -11,9 +11,9 @@
 
 (function () {
 	("use strict");
-	const buildingData = [
-		{ name: "building 1", lat: 53.764645, lng: 9.714703, type: 0 },
-	];
+
+	// Variables
+
 	const dbName = "LSS-Planner";
 	const scriptName = "LSS-Planner";
 	var markers = {};
@@ -120,14 +120,16 @@
 			caption: "Reiterstaffel",
 		},
 	};
-	const logIndex = `[${scriptName}]: `;
-
+	// general functions
 	const alertMessage = (message) => {
 		return `<div class="alert fade in alert-success "><button class="close" data-dismiss="alert" type="button">×</button>${message}</div>`;
 	};
 
-	const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+	function logMessage(message) {
+		console.log(`[${scriptName}]: ` + message);
+	}
 
+	// database functions
 	function createDB() {
 		const request = indexedDB.open(dbName, 3);
 		request.onupgradeneeded = (event) => {
@@ -141,7 +143,7 @@
 				objStore.createIndex("id", "id", { unique: true });
 				objStore.createIndex("name", "name", { unique: false });
 				objStore.createIndex("type", "type", { unique: false });
-				console.log(logIndex + `Created DB: ${dbName}`);
+				logMessage(`Created DB: ${dbName}`);
 			}
 		};
 		request.onsuccess = (event) => {
@@ -159,7 +161,7 @@
 			let buildings = transaction.objectStore("buildings");
 
 			buildings.put(building);
-			console.log(logIndex + `Added: "${building?.name}"`);
+			logMessage(`Added: "${building?.name}"`);
 
 			db.close();
 		};
@@ -175,10 +177,10 @@
 
 			let req = buildings.delete(id);
 			req.onerror = (event) => {
-				console.log(logIndex + `Deleted: "${id}", error: "${req.error.name}"`);
+				logMessage(`Deleted: "${id}", error: "${req.error.name}"`);
 			};
 			req.onsuccess = (event) => {
-				console.log(logIndex + `Deleted: "${id}"`);
+				logMessage(`Deleted: "${id}"`);
 			};
 			db.close();
 		};
@@ -234,44 +236,50 @@
 		});
 	}
 
+	// Modal Opening functions
 	function openInfo(building) {
-		let modal = $(`#lssp-modal`);
+		let modal = $(`#lssp-building-modal`);
 		modal.modal("show");
 		document
-			.getElementById(`lssp-modal-form`)
+			.getElementById(`lssp-building-modal-form`)
 			.setAttribute("data", JSON.stringify(building));
-		let modal_title = document.getElementById("lssp-modal-body-title");
+		let modal_title = document.getElementById("lssp-building-modal-body-title");
 		modal_title.innerHTML = `${building.name}`;
 
-		let modal_type = document.getElementById("lssp-modal-body-type");
+		let modal_type = document.getElementById("lssp-building-modal-body-type");
 		modal_type.innerHTML = `${dictionary[building.type].caption}`;
 
-		let modal_lat = document.getElementById("lssp-modal-body-lat");
+		let modal_lat = document.getElementById("lssp-building-modal-body-lat");
 		modal_lat.innerHTML = `Latitude: ${building.lat}`;
 
-		let modal_lng = document.getElementById("lssp-modal-body-lng");
+		let modal_lng = document.getElementById("lssp-building-modal-body-lng");
 		modal_lng.innerHTML = `Longitude: ${building.lng}`;
-
-		//console.log(building);
 	}
 	function openEdit(building) {
-		let modal = $(`#lssp-edit-modal`);
+		let modal = $(`#lssp-building-edit-modal`);
 		modal.modal("show");
 		document
-			.getElementById(`lssp-edit-modal-form`)
+			.getElementById(`lssp-building-edit-modal-form`)
 			.setAttribute("data", JSON.stringify(building));
 
-		let modal_title = document.getElementById("lssp-modal-building-name");
+		let modal_title = document.getElementById(
+			"lssp-building-modal-building-name"
+		);
 		modal_title.setAttribute("value", building.name);
 
-		let modal_type = document.getElementById("lssp-modal-building-type");
+		let modal_type = document.getElementById(
+			"lssp-building-modal-building-type"
+		);
 		document
 			.querySelector(`[value="${building.type}"]`)
 			.setAttribute("selected", "selected");
 		modal_type.setAttribute("value", building.type);
-
-		//console.log(building);
 	}
+	async function onClick(e) {
+		openInfo(await getFromDB(parseInt(e.target._icon.id)));
+	}
+
+	// Map / UI functions
 	function setBuildingMarker(building) {
 		icons[building.id] = L.icon({
 			iconUrl: dictionary[building.type].icon,
@@ -287,12 +295,7 @@
 			.bindTooltip(building.name);
 		markers[building.id]._icon.id = building.id;
 	}
-	async function onClick(e) {
-		openInfo(await getFromDB(parseInt(e.target._icon.id)));
-	}
 	function addButtons() {
-		//console.log(logIndex + "Adding buttons...");
-		//let loc = $(".leaflet-bottom leaflet-left");
 		L.Control.MyControl = L.Control.extend({
 			onAdd: function (map) {
 				var el = L.DomUtil.create("div", "leaflet-bar my-control");
@@ -302,10 +305,6 @@
                 <button id="save-plan-new-building" class="btn btn-xs ajax btn-default" >Speichern</button>`;
 
 				return el;
-			},
-
-			onRemove: function (map) {
-				// Nothing to do here
 			},
 		});
 
@@ -325,11 +324,33 @@
 		document.getElementById("save-plan-new-building").disabled = true;
 		("hidden");
 	}
+
+	function addMenuEntry() {
+		/** Add divider  */
+		let divider = document.createElement("li");
+		divider.setAttribute("class", "divider");
+		divider.setAttribute("role", "presentation");
+		document
+			.getElementById("logout_button")
+			.parentElement.parentElement.appendChild(divider);
+
+		/** Add button */
+		let button = document.createElement("a");
+		button.setAttribute("href", "javascript: void(0)");
+		button.setAttribute("id", "lssp-button");
+		button.append("Lss-Planner Save Download");
+		let button_li = document.createElement("li");
+		button_li.appendChild(button);
+		document
+			.getElementById("logout_button")
+			.parentElement.parentElement.appendChild(button_li);
+	}
+
 	function addBuilding() {
 		function saveBuilding() {
-			$("#lssp-edit-modal").modal("show");
+			$("#lssp-building-edit-modal").modal("show");
 			let latlng = marker.getLatLng();
-			document.getElementById(`lssp-edit-modal-form`).setAttribute(
+			document.getElementById(`lssp-building-edit-modal-form`).setAttribute(
 				"data",
 				JSON.stringify({
 					lat: latlng.lat,
@@ -355,7 +376,7 @@
 			.getElementById("save-plan-new-building")
 			.addEventListener("click", saveBuilding, false);
 
-		console.log(logIndex + "Adding building...");
+		logMessage("Adding building...");
 		let center = map.getCenter();
 		let marker = L.marker([center.lat, center.lng], {
 			draggable: true,
@@ -363,13 +384,14 @@
 		}).addTo(map);
 	}
 
-	function addModal() {
+	// Modal creation functions
+	function addBuildingModal() {
 		const modal = document.createElement("div");
 		modal.className = "modal fade";
-		modal.id = `lssp-modal`;
+		modal.id = `lssp-building-modal`;
 		modal.setAttribute("tabindex", "-1");
 		modal.setAttribute("role", "dialog");
-		modal.setAttribute("aria-labelledby", "lssp-modal-label");
+		modal.setAttribute("aria-labelledby", "lssp-building-modal-label");
 		modal.setAttribute("aria-hidden", "true");
 		modal.style.zIndex = "5000";
 		modal.innerHTML = `
@@ -380,7 +402,7 @@
 	>
 		<div class="modal-content" action="">
 			<div class="modal-header">
-				<h1 class="modal-title" id="lssp-modal-label">LSS-Planner</h1>
+				<h1 class="modal-title" id="lssp-building-modal-label">LSS-Planner</h1>
 				<button
 					type="button"
 					class="close"
@@ -390,20 +412,20 @@
 					<span aria-hidden="true">&times;</span>
 				</button>
 			</div>
-			<form id="lssp-modal-form">
+			<form id="lssp-building-modal-form">
 				<div
-					id="lssp-modal-body"
+					id="lssp-building-modal-body"
 					class="modal-body"
 					style="height: calc(100vh - 350px); overflow-y: auto"
 				>
 					<div>
-						<h1 id="lssp-modal-body-title"></h1>
-						<span id="lssp-modal-body-type"></span>
+						<h1 id="lssp-building-modal-body-title"></h1>
+						<span id="lssp-building-modal-body-type"></span>
 					</div>
-					<p id="lssp-modal-body-lat">Latitude:</p>
-					<p id="lssp-modal-body-lng">Longitude:</p>
-					<button type="submit" id="lssp-modal-form-submit" class="btn btn-default">Bearbeiten</button>
-					<button type="submit" id="lssp-modal-form-delete" data-confirm="Wirklich Löschen?" data-method="delete" class="btn btn-danger">Löschen</button>
+					<p id="lssp-building-modal-body-lat">Latitude:</p>
+					<p id="lssp-building-modal-body-lng">Longitude:</p>
+					<button type="submit" id="lssp-building-modal-form-submit" class="btn btn-default">Bearbeiten</button>
+					<button type="submit" id="lssp-building-modal-form-delete" data-confirm="Wirklich Löschen?" data-method="delete" class="btn btn-danger">Löschen</button>
 				</div>
 			</form>
 		</div>
@@ -413,13 +435,13 @@
 		document.body.appendChild(modal);
 	}
 
-	function addEditModal() {
+	function addBuildingEditModal() {
 		const modal = document.createElement("div");
 		modal.className = "modal fade";
-		modal.id = `lssp-edit-modal`;
+		modal.id = `lssp-building-edit-modal`;
 		modal.setAttribute("tabindex", "-1");
 		modal.setAttribute("role", "dialog");
-		modal.setAttribute("aria-labelledby", "lssp-edit-modal-label");
+		modal.setAttribute("aria-labelledby", "lssp-building-edit-modal-label");
 		modal.setAttribute("aria-hidden", "true");
 		modal.style.zIndex = "5000";
 		modal.innerHTML = `
@@ -430,7 +452,7 @@
 >
 	<div class="modal-content" action="">
 		<div class="modal-header">
-			<h1 class="modal-title" id="lssp-edit-modal-label">LSS-Planner</h1>
+			<h1 class="modal-title" id="lssp-building-edit-modal-label">LSS-Planner</h1>
 			<button
 				type="button"
 				class="close"
@@ -440,9 +462,9 @@
 				<span aria-hidden="true">&times;</span>
 			</button>
 		</div>
-		<form id="lssp-edit-modal-form">
+		<form id="lssp-building-edit-modal-form">
 			<div
-				id="lssp-edit-modal-body"
+				id="lssp-building-edit-modal-body"
 				class="modal-body"
 				style="height: calc(100vh - 350px); overflow-y: auto"
 			>
@@ -456,7 +478,7 @@
 							</div>
 							<input
 								class="string required form-control"
-								id="lssp-modal-building-name"
+								id="lssp-building-modal-building-name"
 								maxlength="40"
 								name="building[name]"
 								size="50"
@@ -469,14 +491,14 @@
 						<div class="input-group-addon">
 							<label
 								class="integer required select required"
-								for="lssp-modal-building-type"
+								for="lssp-building-modal-building-type"
 								><abbr title="required">*</abbr> Gebäudetyp</label
 							>
 						</div>
 
 						<select
 							class="select required form-control"
-							id="lssp-modal-building-type"
+							id="lssp-building-modal-building-type"
 							name="building[building_type]"
 						>
 							<option value=""></option>
@@ -507,7 +529,7 @@
 				</div>
 				<button
 					type="submit"
-					id="lssp-edit-modal-form-submit"
+					id="lssp-building-edit-modal-form-submit"
 					class="btn btn-default"
 				>
 					Speichern
@@ -521,32 +543,12 @@
 		`;
 		document.body.appendChild(modal);
 	}
-	function addMenuEntry() {
-		/** Add divider  */
-		let divider = document.createElement("li");
-		divider.setAttribute("class", "divider");
-		divider.setAttribute("role", "presentation");
-		document
-			.getElementById("logout_button")
-			.parentElement.parentElement.appendChild(divider);
-
-		/** Add button */
-		let button = document.createElement("a");
-		button.setAttribute("href", "javascript: void(0)");
-		button.setAttribute("id", "lssp-button");
-		button.append("Lss-Planner Save Download");
-		let button_li = document.createElement("li");
-		button_li.appendChild(button);
-		document
-			.getElementById("logout_button")
-			.parentElement.parentElement.appendChild(button_li);
-	}
 
 	async function main() {
-		console.log(logIndex + "Starting...");
+		logMessage("Starting...");
 		createDB();
-		addModal();
-		addEditModal();
+		addBuildingModal();
+		addBuildingEditModal();
 		addButtons();
 		addMenuEntry();
 
@@ -561,11 +563,11 @@
 			var downloadAnchorNode = document.createElement("a");
 			downloadAnchorNode.setAttribute("href", dataStr);
 			downloadAnchorNode.setAttribute("download", exportName + ".json");
-			document.body.appendChild(downloadAnchorNode); // required for firefox
+			document.body.appendChild(downloadAnchorNode);
 			downloadAnchorNode.click();
 			downloadAnchorNode.remove();
 		}
-		// Placing Markers from DB
+
 		await getAllFromDB().then((buildings) =>
 			buildings.forEach((b) => {
 				setBuildingMarker(b);
@@ -573,13 +575,12 @@
 		);
 
 		$(document).ready(function () {
-			$("#lssp-modal-form").submit(function (event) {
-				console.log(event);
+			$("#lssp-building-modal-form").submit(function (event) {
 				event.preventDefault();
 				let building = JSON.parse(event.target.getAttribute("data"));
 				if (
 					event.originalEvent.submitter ==
-					document.getElementById("lssp-modal-form-delete")
+					document.getElementById("lssp-building-modal-form-delete")
 				) {
 					deleteFromDB(building.id);
 					location.reload();
@@ -587,14 +588,16 @@
 					openEdit(building);
 				}
 			});
-			$("#lssp-edit-modal-form").submit(function (event) {
+			$("#lssp-building-edit-modal-form").submit(function (event) {
 				event.preventDefault();
 				let building = JSON.parse(
-					document.getElementById("lssp-edit-modal-form").getAttribute("data")
+					document
+						.getElementById("lssp-building-edit-modal-form")
+						.getAttribute("data")
 				);
-				const title = $("#lssp-edit-modal-form input:text").val();
-				const type = $("#lssp-edit-modal-form select").val();
-				console.log(logIndex + `${title} - ${type}`);
+				const title = $("#lssp-building-edit-modal-form input:text").val();
+				const type = $("#lssp-building-edit-modal-form select").val();
+				logMessage(`${title} - ${type}`);
 				building.name = title;
 				building.type = type;
 				addToDB(building);
