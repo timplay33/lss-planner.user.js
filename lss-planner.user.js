@@ -115,6 +115,10 @@
 			icon: "/images/building_complex_other.png",
 			caption: "Kleiner Komplex",
 		},
+		24: {
+			icon: "/images/building_police_horse_other.png",
+			caption: "Reiterstaffel",
+		},
 	};
 	const logIndex = `[${scriptName}]: `;
 
@@ -490,6 +494,7 @@
 							<option value="19">Polizeiwache (Kleinwache)</option>
 							<option value="11">Bereitschaftspolizei</option>
 							<option value="17">Polizei-Sondereinheiten</option>
+							<option value="24">Reiterstaffel</option>
 							<option value="13">Polizeihubschrauberstation</option>
 							<option value="8">Polizeischule</option>
 							<option value="9">THW</option>
