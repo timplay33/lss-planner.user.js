@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         LSS-Planner
 // @namespace    https://heidler.eu.org/
-// @version      0.2.1
+// @version      0.3.0
 // @description  LSS-Planner
 // @author       Tim Heidler git:@timplay33
 // @match        https://www.leitstellenspiel.de/
@@ -338,7 +338,7 @@
 		let button = document.createElement("a");
 		button.setAttribute("href", "javascript: void(0)");
 		button.setAttribute("id", "lssp-button");
-		button.append("Lss-Planner Save Download");
+		button.append("Lss-Planner");
 		let button_li = document.createElement("li");
 		button_li.appendChild(button);
 		document
@@ -543,16 +543,152 @@
 		`;
 		document.body.appendChild(modal);
 	}
+	function addModal() {
+		const modal = document.createElement("div");
+		modal.className = "modal fade";
+		modal.id = `lssp-modal`;
+		modal.setAttribute("tabindex", "-1");
+		modal.setAttribute("role", "dialog");
+		modal.setAttribute("aria-labelledby", "lssp-modal-label");
+		modal.setAttribute("aria-hidden", "true");
+		modal.style.zIndex = "5000";
+		modal.innerHTML = `
+		<div
+	class="modal-dialog modal-lg"
+	role="document"
+	style="width: 95%; margin: 40px auto"
+>
+	<div class="modal-content" action="">
+		<div class="modal-header">
+			<h1 class="modal-title" id="lssp-modal-label">LSS-Planner</h1>
+			<button
+				type="button"
+				class="close"
+				data-dismiss="modal"
+				aria-label="Close"
+			>
+				<span aria-hidden="true">&times;</span>
+			</button>
+		</div>
+		<div
+			id="lssp-modal-body"
+			class="modal-body"
+			style="height: calc(100vh - 350px); overflow-y: auto"
+		>
+		<div>
+		<ul class="nav nav-tabs" role="tablist" style="margin-bottom: 10px">
+			<li role="presentation" class="active">
+				<a
+					href="#lssp-modal-dash-panel"
+					aria-controls="lssp-modal-dash-panel"
+					role="tab"
+					data-toggle="tab"
+				>
+					Übersicht
+				</a>
+			</li>
+			<li role="presentation">
+				<a
+					href="#lssp-modal-backup-panel"
+					aria-controls="lssp-modal-backup-panel"
+					role="tab"
+					data-toggle="tab"
+				>
+					BackUp
+				</a>
+			</li>
+		</ul>
+		<div class="tab-content">
+			<div role="tabpanel" class="tab-pane active" id="lssp-modal-dash-panel">
+				<table
+					id="lssp-modal-dash-table"
+					class="table table-striped tablesorter tablesorter-default"
+					role="grid"
+				>
+					<thead>
+						<tr class="tablesorter-headerRow" role="row">
+							<th></th>
+							<th>Name</th>
+							<th>Typ</th>
+						</tr>
+					</thead>
+					<tbody
+						id="lssp-modal-dash-table-body"
+						aria-live="polite"
+						aria-relevant="all"
+					></tbody>
+				</table>
+			</div>
+			<div role="tabpanel" class="tab-pane" id="lssp-modal-backup-panel">
+				<input type="file" id="lssp-modal-selectFiles" value="Import" /><br />
+				<button id="lssp-modal-import" class="btn btn-default">
+					Importieren
+				</button>
+				<button id="lssp-modal-export" class="btn btn-success">
+					Herunterladen
+				</button>
+				<table class="table table-striped tablesorter tablesorter-default">
+					<thead>
+						<tr class="tablesorter-headerRow" role="row">
+							<th></th>
+							<th>Name</th>
+							<th>Typ</th>
+						</tr>
+					</thead>
+					<tbody id="lssp-modal-body-output"></tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+	
+		</div>
+	</div>
+</div>
+		`;
+		document.body.appendChild(modal);
+	}
 
 	async function main() {
 		logMessage("Starting...");
 		createDB();
+		addModal();
 		addBuildingModal();
 		addBuildingEditModal();
 		addButtons();
 		addMenuEntry();
 
 		$("#lssp-button").on("click", async function () {
+			let modal = $(`#lssp-modal`);
+			modal.modal("show");
+			await getAllFromDB()
+				.then((buildings) =>
+					buildings.sort((a, b) => a.name.localeCompare(b.name))
+				)
+				.then((buildings) =>
+					buildings.sort().forEach((b) => {
+						$("#lssp-modal-dash-table-body").append(`
+						<tr>
+						<td>
+							<img
+								src="${dictionary[b.type].icon}"
+								alt="icon ${dictionary[b.type].caption}"
+							/>
+						</td>
+						<td><a id="lssp-modal-dash-table-body-link">${b.name}</a></td>
+						<td>${dictionary[b.type].caption}</td>
+					</tr>`);
+						let btns = document.querySelectorAll(
+							`#lssp-modal-dash-table-body-link`
+						);
+						let lastbtn = btns[btns.length - 1];
+						lastbtn.addEventListener("click", () => {
+							openInfo(b);
+						});
+					})
+				);
+		});
+
+		$("#lssp-modal-export").on("click", async function () {
 			downloadObjectAsJson(await getAllFromDB(), "LSS-Planner");
 		});
 
@@ -604,6 +740,30 @@
 				location.reload();
 			});
 		});
+		document.getElementById("lssp-modal-import").onclick = function () {
+			var files = document.getElementById("lssp-modal-selectFiles").files;
+			if (files.length <= 0) {
+				return false;
+			}
+
+			var fr = new FileReader();
+
+			fr.onload = function (e) {
+				var result = JSON.parse(e.target.result);
+				result.forEach((b) => {
+					$("#lssp-modal-body-output").append(`
+					<tr>
+					<td ><img src="${dictionary[b.type].icon}" alt="icon ${
+						dictionary[b.type].caption
+					}"></td>
+					<td >${b.name}</td>
+					<td >${dictionary[b.type].caption}</td>
+				</tr>`);
+				});
+			};
+
+			fr.readAsText(files.item(0));
+		};
 	}
 	main();
 })();
