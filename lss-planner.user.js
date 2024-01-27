@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         LSS-Planner
 // @namespace    https://heidler.eu.org/
-// @version      0.3.0
+// @version      0.3.1
 // @description  LSS-Planner
 // @author       Tim Heidler git:@timplay33
 // @match        https://www.leitstellenspiel.de/
@@ -127,6 +127,10 @@
 
 	function logMessage(message) {
 		console.log(`[${scriptName}]: ` + message);
+	}
+
+	function sleep(ms) {
+		return new Promise((resolve) => setTimeout(resolve, ms));
 	}
 
 	// database functions
@@ -420,10 +424,11 @@
 				>
 					<div>
 						<h1 id="lssp-building-modal-body-title"></h1>
-						<span id="lssp-building-modal-body-type"></span>
+						<p id="lssp-building-modal-body-type"></p>
 					</div>
 					<p id="lssp-building-modal-body-lat">Latitude:</p>
 					<p id="lssp-building-modal-body-lng">Longitude:</p>
+					<button type="submit" id="lssp-building-modal-form-build" class="btn btn-success">Bauen</button>
 					<button type="submit" id="lssp-building-modal-form-submit" class="btn btn-default">Bearbeiten</button>
 					<button type="submit" id="lssp-building-modal-form-delete" data-confirm="Wirklich Löschen?" data-method="delete" class="btn btn-danger">Löschen</button>
 				</div>
@@ -648,6 +653,17 @@
 		document.body.appendChild(modal);
 	}
 
+	async function buildBuilding(building) {
+		let modal = $(`#lssp-building-modal`);
+		modal.modal("hide");
+		buildBtn = document.getElementById("build_new_building").click();
+		await sleep(500);
+		$("#building_building_type").val(building.type);
+		$("#building_name").val(building.name);
+		building_new_marker.setLatLng(L.latLng(building.lat, building.lng));
+		building_new_dragend();
+	}
+
 	async function main() {
 		logMessage("Starting...");
 		createDB();
@@ -656,6 +672,7 @@
 		addBuildingEditModal();
 		addButtons();
 		addMenuEntry();
+		////////////////////////////////////////////////////////////////
 
 		$("#lssp-button").on("click", async function () {
 			let modal = $(`#lssp-modal`);
@@ -720,6 +737,11 @@
 				) {
 					deleteFromDB(building.id);
 					location.reload();
+				} else if (
+					event.originalEvent.submitter ==
+					document.getElementById("lssp-building-modal-form-build")
+				) {
+					buildBuilding(building);
 				} else {
 					openEdit(building);
 				}
