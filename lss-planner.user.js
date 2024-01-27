@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         LSS-Planner
 // @namespace    https://heidler.eu.org/
-// @version      0.3.1
+// @version      0.3.2
 // @description  LSS-Planner
 // @author       Tim Heidler git:@timplay33
 // @match        https://www.leitstellenspiel.de/
@@ -292,6 +292,7 @@
 		});
 		markers[building.id] = L.marker([building.lat, building.lng], {
 			title: building.name,
+			opacity: 0.6,
 			icon: icons[building.id],
 		})
 			.on("click", onClick)
@@ -662,6 +663,10 @@
 		$("#building_name").val(building.name);
 		building_new_marker.setLatLng(L.latLng(building.lat, building.lng));
 		building_new_dragend();
+		$("#new_building").on("submit", function () {
+			logMessage("Build: " + building.name);
+			deleteFromDB(building.id);
+		});
 	}
 
 	async function main() {
