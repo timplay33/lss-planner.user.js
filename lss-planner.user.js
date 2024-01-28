@@ -258,6 +258,14 @@
 
 		let modal_lng = document.getElementById("lssp-building-modal-body-lng");
 		modal_lng.innerHTML = `Longitude: ${building.lng}`;
+
+		let modal_leitstelle = document.getElementById(
+			"lssp-building-modal-body-leitstelle"
+		);
+		$.getJSON("../api/buildings", function (data) {
+			data = data.filter((l) => l.id == building.leitstelle);
+			modal_leitstelle.innerHTML = `Leitstelle: ${data[0]?.caption || ""}`;
+		});
 	}
 	function openEdit(building) {
 		let modal = $(`#lssp-building-edit-modal`);
@@ -271,13 +279,8 @@
 		);
 		modal_title.setAttribute("value", building.name);
 
-		let modal_type = document.getElementById(
-			"lssp-building-modal-building-type"
-		);
-		document
-			.querySelector(`[value="${building.type}"]`)
-			.setAttribute("selected", "selected");
-		modal_type.setAttribute("value", building.type);
+		$("#lssp-building-modal-building-type").val(building.type);
+		$("#lssp-building-modal-building-leitstelle").val(building.leitstelle);
 	}
 	async function onClick(e) {
 		openInfo(await getFromDB(parseInt(e.target._icon.id)));
@@ -427,6 +430,7 @@
 						<h1 id="lssp-building-modal-body-title"></h1>
 						<p id="lssp-building-modal-body-type"></p>
 					</div>
+					<p id="lssp-building-modal-body-leitstelle">Leitstelle:</p>
 					<p id="lssp-building-modal-body-lat">Latitude:</p>
 					<p id="lssp-building-modal-body-lng">Longitude:</p>
 					<button type="submit" id="lssp-building-modal-form-build" class="btn btn-success">Bauen</button>
@@ -532,6 +536,18 @@
 							<option value="21">Rettungshundestaffel</option>
 						</select>
 					</div>
+					<div class="input-group select required building_building_type">
+						<div class="input-group-addon">
+                  			<label class="integer optional select required" for="lssp-building-modal-building-leitstelle">Zugeordnete Leitstelle</label>
+                		</div>
+						<select
+							class="select required form-control"
+							id="lssp-building-modal-building-leitstelle"
+							name="building[building_type]"
+						>
+							<option value=""></option>
+						</select>
+					</div>
 				</div>
 				<button
 					type="submit"
@@ -548,6 +564,14 @@
 
 		`;
 		document.body.appendChild(modal);
+		$.getJSON("../api/buildings", function (data) {
+			data = data.filter((l) => l.building_type == 7);
+			data.forEach((l) => {
+				$("#lssp-building-modal-building-leitstelle").append(
+					`<option value="${l.id}">${l.caption}</option>`
+				);
+			});
+		});
 	}
 	function addModal() {
 		const modal = document.createElement("div");
@@ -663,6 +687,7 @@
 		$("#building_name").val(building.name);
 		building_new_marker.setLatLng(L.latLng(building.lat, building.lng));
 		building_new_dragend();
+		$("#building_leitstelle_building_id").val(building.leitstelle);
 		$("#new_building").on("submit", function () {
 			logMessage("Build: " + building.name);
 			deleteFromDB(building.id);
@@ -759,10 +784,12 @@
 						.getAttribute("data")
 				);
 				const title = $("#lssp-building-edit-modal-form input:text").val();
-				const type = $("#lssp-building-edit-modal-form select").val();
+				const type = $("#lssp-building-modal-building-type").val();
+				const leitstelle = $("#lssp-building-modal-building-leitstelle").val();
 				logMessage(`${title} - ${type}`);
 				building.name = title;
 				building.type = type;
+				building.leitstelle = leitstelle;
 				addToDB(building);
 				location.reload();
 			});
