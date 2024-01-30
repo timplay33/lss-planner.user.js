@@ -595,6 +595,7 @@
 									</thead>
 									<tbody id="lssp-modal-body-output"></tbody>
 								</table>
+								<button id="lssp-modal-import-save" class="btn btn-success" type="button">Speichern</button>
 							</div>
 						</div>
 					</div>
@@ -742,7 +743,6 @@
 			fr.onload = function (e) {
 				var result = JSON.parse(e.target.result);
 				result.forEach((b) => {
-					addToDB(b);
 					$("#lssp-modal-body-output").append(`
 					<tr>
 					<td ><img src="${dictionary[b.type].icon}" alt="icon ${
@@ -751,6 +751,12 @@
 					<td >${b.name}</td>
 					<td >${dictionary[b.type].caption}</td>
 				</tr>`);
+				});
+				$("#lssp-modal-import-save").on("click", function () {
+					result.forEach((b) => {
+						addToDB(b);
+						location.reload();
+					});
 				});
 			};
 
