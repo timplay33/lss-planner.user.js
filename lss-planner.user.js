@@ -582,6 +582,10 @@
 									Herunterladen
 								</button>
 								<table class="table table-striped tablesorter tablesorter-default">
+								<button id="lssp-modal-delete" class="btn btn-danger">
+									Alles Löschen
+								</button>
+								<table class="table table-striped tablesorter tablesorter-default">
 									<thead>
 										<tr class="tablesorter-headerRow" role="row">
 											<th></th>
@@ -660,6 +664,16 @@
 
 		$("#lssp-modal-export").on("click", async function () {
 			downloadObjectAsJson(await getAllFromDB(), "LSS-Planner");
+		});
+		$("#lssp-modal-delete").on("click", async function () {
+			if (confirm("Wirklich alles Löschen?")) {
+				await getAllFromDB().then((b) => {
+					b.forEach((a) => deleteFromDB(a.id));
+					logMessage("Alles Gelöscht");
+				});
+			} else {
+				logMessage("Löschen Abgebrochen");
+			}
 		});
 
 		function downloadObjectAsJson(exportObj, exportName) {
