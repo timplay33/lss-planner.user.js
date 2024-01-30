@@ -742,6 +742,7 @@
 			fr.onload = function (e) {
 				var result = JSON.parse(e.target.result);
 				result.forEach((b) => {
+					addToDB(b);
 					$("#lssp-modal-body-output").append(`
 					<tr>
 					<td ><img src="${dictionary[b.type].icon}" alt="icon ${
