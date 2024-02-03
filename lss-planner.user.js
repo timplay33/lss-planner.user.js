@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         LSS-Planner
 // @namespace    https://heidler.eu.org/
-// @version      0.3.4
+// @version      0.3.5
 // @description  LSS-Planner
 // @author       Tim Heidler git:@timplay33
 // @match        https://www.leitstellenspiel.de/
@@ -685,6 +685,8 @@
 			deleteFromDB(building.id);
 		});
 	}
+
+	// Save to Notes Feature
 	var stringToHTML = function (str) {
 		var dom = document.createElement("div");
 		dom.innerHTML = str;
@@ -740,16 +742,32 @@
 		});
 	}
 
+	// Download OBJECT as JSON
+	function downloadObjectAsJson(exportObj, exportName) {
+		var dataStr =
+			"data:text/json;charset=utf-8," +
+			encodeURIComponent(JSON.stringify(exportObj));
+		var downloadAnchorNode = document.createElement("a");
+		downloadAnchorNode.setAttribute("href", dataStr);
+		downloadAnchorNode.setAttribute("download", exportName + ".json");
+		document.body.appendChild(downloadAnchorNode);
+		downloadAnchorNode.click();
+		downloadAnchorNode.remove();
+	}
+
+	// Main function
 	async function main() {
 		logMessage("Starting...");
-		createDB();
+		createDB(); // Creates database if it doesn't exist
 		addModal();
 		addBuildingModal();
 		addBuildingEditModal();
-		addButtons();
-		addMenuEntry();
+		addButtons(); // Adds buttons to Map
+		addMenuEntry(); // Adds Buttons to open main Modal
+
 		////////////////////////////////////////////////////////////////
 
+		// Open Main Modal
 		$("#lssp-button").on("click", async function () {
 			let modal = $(`#lssp-modal`);
 			modal.modal("show");
@@ -781,9 +799,12 @@
 				);
 		});
 
+		// Download Building Data as Json
 		$("#lssp-modal-export").on("click", async function () {
 			downloadObjectAsJson(await getAllFromDB(), "LSS-Planner");
 		});
+
+		// Export Building Data to Notes
 		$("#lssp-modal-export-notes").on("click", async function () {
 			if (confirm("Wirklich alles Löschen?")) {
 				const json = await getAllFromDB();
@@ -795,6 +816,8 @@
 				logMessage("in Notizen speichern abgebrochen");
 			}
 		});
+
+		// Delete all Buildings from database
 		$("#lssp-modal-delete").on("click", async function () {
 			if (confirm("Wirklich alles Löschen?")) {
 				await getAllFromDB().then((b) => {
@@ -806,18 +829,7 @@
 			}
 		});
 
-		function downloadObjectAsJson(exportObj, exportName) {
-			var dataStr =
-				"data:text/json;charset=utf-8," +
-				encodeURIComponent(JSON.stringify(exportObj));
-			var downloadAnchorNode = document.createElement("a");
-			downloadAnchorNode.setAttribute("href", dataStr);
-			downloadAnchorNode.setAttribute("download", exportName + ".json");
-			document.body.appendChild(downloadAnchorNode);
-			downloadAnchorNode.click();
-			downloadAnchorNode.remove();
-		}
-
+		// Adding Buildings to Map
 		await getAllFromDB().then((buildings) =>
 			buildings.forEach((b) => {
 				setBuildingMarker(b);
@@ -825,6 +837,7 @@
 		);
 
 		$(document).ready(function () {
+			// Building Options
 			$("#lssp-building-modal-form").submit(function (event) {
 				event.preventDefault();
 				let building = JSON.parse(event.target.getAttribute("data"));
@@ -832,17 +845,21 @@
 					event.originalEvent.submitter ==
 					document.getElementById("lssp-building-modal-form-delete")
 				) {
+					// Delete Building
 					deleteFromDB(building.id);
 					location.reload();
 				} else if (
 					event.originalEvent.submitter ==
 					document.getElementById("lssp-building-modal-form-build")
 				) {
+					// Open Building Build Options
 					buildBuilding(building);
 				} else {
+					// Edit Building
 					openEdit(building);
 				}
 			});
+			// Edit Building
 			$("#lssp-building-edit-modal-form").submit(function (event) {
 				event.preventDefault();
 				let building = JSON.parse(
@@ -861,6 +878,8 @@
 				location.reload();
 			});
 		});
+
+		// Import From JSON to Database
 		document.getElementById("lssp-modal-import").onclick = function () {
 			var files = document.getElementById("lssp-modal-selectFiles").files;
 			if (files.length <= 0) {
@@ -891,6 +910,8 @@
 
 			fr.readAsText(files.item(0));
 		};
+
+		// Import From Notes to Database
 		$("#lssp-modal-import-notes").on("click", async function () {
 			const notes = searchBackUpData(await getNotes());
 			const json = JSON.parse(notes);
@@ -912,5 +933,7 @@
 			});
 		});
 	}
+
+	// Run the Program
 	main();
 })();
