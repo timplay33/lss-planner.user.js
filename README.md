@@ -19,11 +19,13 @@ Die Idee hinter dem Script ist es, Gebäude, welche man sich noch nicht leisten 
 - [x] Gebäude Übersicht
 - [x] Gebäude Namen
 - [x] Gebäude Löschen
-- [x] Gebäude daten als Json speichern
-- [x] Gebäude daten aus Json auslesen
-- [ ] Ausgelesene Json Daten in DB speichern
+- [x] Gebäude Daten als Json speichern
+- [x] Gebäude Daten aus Json auslesen
+- [x] Ausgelesene Json Daten in DB speichern
 - [x] Übersicht über alle Gebäude
 - [x] Gebäude semi automatisch bauen
+- [x] Gebäude Daten in Notizen speichern
+- [x] Gebäude Daten aus Notizen auslesen
 
 und mehr....
 
@@ -31,4 +33,4 @@ und mehr....
 
 Installiere [Tampermonkey](https://www.tampermonkey.net/)
 und drücke auf den Link
-https://github.com/timplay33/lss-planner.user.js/raw/main/lss-planner.user.js
+[https://github.com/timplay33/lss-planner.user.js/raw/main/lss-planner.user.js](https://github.com/timplay33/lss-planner.user.js/raw/main/lss-planner.user.js)

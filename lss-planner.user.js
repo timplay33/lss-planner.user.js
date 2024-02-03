@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         LSS-Planner
 // @namespace    https://heidler.eu.org/
-// @version      0.3.4
+// @version      0.3.5
 // @description  LSS-Planner
 // @author       Tim Heidler git:@timplay33
 // @match        https://www.leitstellenspiel.de/
@@ -16,6 +16,10 @@
 
 	const dbName = "LSS-Planner";
 	const scriptName = "LSS-Planner";
+	const notesMarker = {
+		start: "LSS-Planner Backup START: Do not modify",
+		end: "LSS-Planner Backup END",
+	};
 	var markers = {};
 	var icons = {};
 	const dictionary = {
@@ -535,57 +539,106 @@
 		modal.setAttribute("aria-hidden", "true");
 		modal.style.zIndex = "5000";
 		modal.innerHTML = `
-		<div class="modal-dialog modal-lg" role="document" style="width: 95%; margin: 40px auto">
-			<div class="modal-content" action="">
-				<div class="modal-header">
-					<h1 class="modal-title" id="lssp-modal-label">LSS-Planner</h1>
-					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-						<span aria-hidden="true">&times;</span>
-					</button>
-				</div>
-				<div id="lssp-modal-body" class="modal-body" style="height: calc(100vh - 350px); overflow-y: auto">
-					<div>
-						<ul class="nav nav-tabs" role="tablist" style="margin-bottom: 10px">
-							<li role="presentation" class="active">
-								<a href="#lssp-modal-dash-panel" aria-controls="lssp-modal-dash-panel" role="tab"
-									data-toggle="tab">
-									Übersicht
-								</a>
-							</li>
-							<li role="presentation">
-								<a href="#lssp-modal-backup-panel" aria-controls="lssp-modal-backup-panel" role="tab"
-									data-toggle="tab">
-									BackUp
-								</a>
-							</li>
-						</ul>
-						<div class="tab-content">
-							<div role="tabpanel" class="tab-pane active" id="lssp-modal-dash-panel">
-								<table id="lssp-modal-dash-table" class="table table-striped tablesorter tablesorter-default"
-									role="grid">
-									<thead>
-										<tr class="tablesorter-headerRow" role="row">
-											<th></th>
-											<th>Name</th>
-											<th>Typ</th>
-										</tr>
-									</thead>
-									<tbody id="lssp-modal-dash-table-body" aria-live="polite" aria-relevant="all"></tbody>
-								</table>
-							</div>
-							<div role="tabpanel" class="tab-pane" id="lssp-modal-backup-panel">
-								<input type="file" id="lssp-modal-selectFiles" value="Import" /><br />
+		<div
+		class="modal-dialog modal-lg"
+		role="document"
+		style="width: 95%; margin: 40px auto"
+	>
+		<div class="modal-content" action="">
+			<div class="modal-header">
+				<h1 class="modal-title" id="lssp-modal-label">LSS-Planner</h1>
+				<button
+					type="button"
+					class="close"
+					data-dismiss="modal"
+					aria-label="Close"
+				>
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div
+				id="lssp-modal-body"
+				class="modal-body"
+				style="height: calc(100vh - 350px); overflow-y: auto"
+			>
+				<div>
+					<ul class="nav nav-tabs" role="tablist" style="margin-bottom: 10px">
+						<li role="presentation" class="active">
+							<a
+								href="#lssp-modal-dash-panel"
+								aria-controls="lssp-modal-dash-panel"
+								role="tab"
+								data-toggle="tab"
+							>
+								Übersicht
+							</a>
+						</li>
+						<li role="presentation">
+							<a
+								href="#lssp-modal-backup-panel"
+								aria-controls="lssp-modal-backup-panel"
+								role="tab"
+								data-toggle="tab"
+							>
+								BackUp
+							</a>
+						</li>
+					</ul>
+					<div class="tab-content">
+						<div
+							role="tabpanel"
+							class="tab-pane active"
+							id="lssp-modal-dash-panel"
+						>
+							<table
+								id="lssp-modal-dash-table"
+								class="table table-striped tablesorter tablesorter-default"
+								role="grid"
+							>
+								<thead>
+									<tr class="tablesorter-headerRow" role="row">
+										<th></th>
+										<th>Name</th>
+										<th>Typ</th>
+									</tr>
+								</thead>
+								<tbody
+									id="lssp-modal-dash-table-body"
+									aria-live="polite"
+									aria-relevant="all"
+								></tbody>
+							</table>
+						</div>
+						<div role="tabpanel" class="tab-pane" id="lssp-modal-backup-panel">
+							<div>
+								<h2>JSON-Datei</h2>
+								<input
+									type="file"
+									id="lssp-modal-selectFiles"
+									value="Import"
+								/><br />
 								<button id="lssp-modal-import" class="btn btn-default">
 									Importieren
 								</button>
 								<button id="lssp-modal-export" class="btn btn-success">
 									Herunterladen
 								</button>
-								<table class="table table-striped tablesorter tablesorter-default">
-								<button id="lssp-modal-delete" class="btn btn-danger">
-									Alles Löschen
+							</div>
+							<div>
+								<h2>Notizen</h2>
+								<button id="lssp-modal-export-notes" class="btn btn-success">
+									in Notizen Exportieren
 								</button>
-								<table class="table table-striped tablesorter tablesorter-default">
+								<button id="lssp-modal-import-notes" class="btn btn-success">
+									aus Notizen Importieren
+								</button>
+							</div>
+							<div>
+								<h2>Zu Importierende Daten</h2>
+	
+								<table
+									class="table table-striped tablesorter tablesorter-default"
+								>
 									<thead>
 										<tr class="tablesorter-headerRow" role="row">
 											<th></th>
@@ -595,14 +648,25 @@
 									</thead>
 									<tbody id="lssp-modal-body-output"></tbody>
 								</table>
-								<button id="lssp-modal-import-save" class="btn btn-success" type="button">Speichern</button>
+								<button
+									id="lssp-modal-import-save"
+									class="btn btn-success"
+									type="button"
+								>
+									Speichern
+								</button>
+								<button id="lssp-modal-delete" class="btn btn-danger">
+									Alles Löschen
+								</button>
 							</div>
 						</div>
 					</div>
-
 				</div>
 			</div>
-		</div>`;
+		</div>
+	</div>
+	
+`;
 		document.body.appendChild(modal);
 	}
 
@@ -622,16 +686,88 @@
 		});
 	}
 
+	// Save to Notes Feature
+	var stringToHTML = function (str) {
+		var dom = document.createElement("div");
+		dom.innerHTML = str;
+		return dom;
+	};
+	async function getNotes() {
+		res = await $.get("https://www.leitstellenspiel.de/note");
+		html = stringToHTML(res);
+		return html.querySelector("textarea").innerHTML;
+	}
+	async function getToken() {
+		res = await $.get("https://www.leitstellenspiel.de/note");
+		html = stringToHTML(res);
+		return html.querySelectorAll("input")[2].getAttribute("value");
+	}
+	function searchBackUpData(notes) {
+		let start = notes.search(notesMarker.start);
+		let end = notes.search(notesMarker.end);
+		return notes.substring(start + notesMarker.start.length + 1, end);
+	}
+	async function saveToNotes(text, token) {
+		let note = await getNotes();
+		let start = note.search(notesMarker.start);
+		let end = note.search(notesMarker.end);
+		if (start != -1 || end != -1) {
+			note = note.substring(0, start - 2);
+		}
+		let save = `${note}\n ${notesMarker.start}\n ${text}\n ${notesMarker.end}`;
+
+		fetch("https://www.leitstellenspiel.de/note", {
+			headers: {
+				accept:
+					"text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+				"accept-language": "de-DE,de;q=0.9,en-US;q=0.8,en;q=0.7",
+				"cache-control": "max-age=0",
+				"content-type": "application/x-www-form-urlencoded",
+				"sec-ch-ua":
+					'"Not A(Brand";v="99", "Google Chrome";v="121", "Chromium";v="121"',
+				"sec-ch-ua-mobile": "?0",
+				"sec-ch-ua-platform": '"Windows"',
+				"sec-fetch-dest": "iframe",
+				"sec-fetch-mode": "navigate",
+				"sec-fetch-site": "same-origin",
+				"sec-fetch-user": "?1",
+				"upgrade-insecure-requests": "1",
+			},
+			referrer: "https://www.leitstellenspiel.de/note",
+			referrerPolicy: "strict-origin-when-cross-origin",
+			body: `utf8=%E2%9C%93&_method=put&authenticity_token=${token}&note[message]=${save}&commit=Speichern`,
+			method: "POST",
+			mode: "cors",
+			credentials: "include",
+		});
+	}
+
+	// Download OBJECT as JSON
+	function downloadObjectAsJson(exportObj, exportName) {
+		var dataStr =
+			"data:text/json;charset=utf-8," +
+			encodeURIComponent(JSON.stringify(exportObj));
+		var downloadAnchorNode = document.createElement("a");
+		downloadAnchorNode.setAttribute("href", dataStr);
+		downloadAnchorNode.setAttribute("download", exportName + ".json");
+		document.body.appendChild(downloadAnchorNode);
+		downloadAnchorNode.click();
+		downloadAnchorNode.remove();
+	}
+
+	// Main function
 	async function main() {
 		logMessage("Starting...");
-		createDB();
+		createDB(); // Creates database if it doesn't exist
 		addModal();
 		addBuildingModal();
 		addBuildingEditModal();
-		addButtons();
-		addMenuEntry();
+		addButtons(); // Adds buttons to Map
+		addMenuEntry(); // Adds Buttons to open main Modal
+
 		////////////////////////////////////////////////////////////////
 
+		// Open Main Modal
 		$("#lssp-button").on("click", async function () {
 			let modal = $(`#lssp-modal`);
 			modal.modal("show");
@@ -663,9 +799,25 @@
 				);
 		});
 
+		// Download Building Data as Json
 		$("#lssp-modal-export").on("click", async function () {
 			downloadObjectAsJson(await getAllFromDB(), "LSS-Planner");
 		});
+
+		// Export Building Data to Notes
+		$("#lssp-modal-export-notes").on("click", async function () {
+			if (confirm("Wirklich alles Löschen?")) {
+				const json = await getAllFromDB();
+				const note = JSON.stringify(json);
+				const token = await getToken();
+				saveToNotes(note, token);
+				logMessage("in Notizen gespeichert: \n" + note);
+			} else {
+				logMessage("in Notizen speichern abgebrochen");
+			}
+		});
+
+		// Delete all Buildings from database
 		$("#lssp-modal-delete").on("click", async function () {
 			if (confirm("Wirklich alles Löschen?")) {
 				await getAllFromDB().then((b) => {
@@ -677,18 +829,7 @@
 			}
 		});
 
-		function downloadObjectAsJson(exportObj, exportName) {
-			var dataStr =
-				"data:text/json;charset=utf-8," +
-				encodeURIComponent(JSON.stringify(exportObj));
-			var downloadAnchorNode = document.createElement("a");
-			downloadAnchorNode.setAttribute("href", dataStr);
-			downloadAnchorNode.setAttribute("download", exportName + ".json");
-			document.body.appendChild(downloadAnchorNode);
-			downloadAnchorNode.click();
-			downloadAnchorNode.remove();
-		}
-
+		// Adding Buildings to Map
 		await getAllFromDB().then((buildings) =>
 			buildings.forEach((b) => {
 				setBuildingMarker(b);
@@ -696,6 +837,7 @@
 		);
 
 		$(document).ready(function () {
+			// Building Options
 			$("#lssp-building-modal-form").submit(function (event) {
 				event.preventDefault();
 				let building = JSON.parse(event.target.getAttribute("data"));
@@ -703,17 +845,21 @@
 					event.originalEvent.submitter ==
 					document.getElementById("lssp-building-modal-form-delete")
 				) {
+					// Delete Building
 					deleteFromDB(building.id);
 					location.reload();
 				} else if (
 					event.originalEvent.submitter ==
 					document.getElementById("lssp-building-modal-form-build")
 				) {
+					// Open Building Build Options
 					buildBuilding(building);
 				} else {
+					// Edit Building
 					openEdit(building);
 				}
 			});
+			// Edit Building
 			$("#lssp-building-edit-modal-form").submit(function (event) {
 				event.preventDefault();
 				let building = JSON.parse(
@@ -732,6 +878,8 @@
 				location.reload();
 			});
 		});
+
+		// Import From JSON to Database
 		document.getElementById("lssp-modal-import").onclick = function () {
 			var files = document.getElementById("lssp-modal-selectFiles").files;
 			if (files.length <= 0) {
@@ -762,6 +910,30 @@
 
 			fr.readAsText(files.item(0));
 		};
+
+		// Import From Notes to Database
+		$("#lssp-modal-import-notes").on("click", async function () {
+			const notes = searchBackUpData(await getNotes());
+			const json = JSON.parse(notes);
+			json.forEach((b) => {
+				$("#lssp-modal-body-output").append(`
+				<tr>
+				<td ><img src="${dictionary[b.type].icon}" alt="icon ${
+					dictionary[b.type].caption
+				}"></td>
+				<td >${b.name}</td>
+				<td >${dictionary[b.type].caption}</td>
+			</tr>`);
+			});
+			$("#lssp-modal-import-save").on("click", function () {
+				json.forEach((b) => {
+					addToDB(b);
+					location.reload();
+				});
+			});
+		});
 	}
+
+	// Run the Program
 	main();
 })();
