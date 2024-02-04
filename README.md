@@ -33,4 +33,4 @@ und mehr....
 
 Installiere [Tampermonkey](https://www.tampermonkey.net/)
 und drücke auf den Link
-[https://github.com/timplay33/lss-planner.user.js/raw/main/lss-planner.user.js](https://github.com/timplay33/lss-planner.user.js/raw/main/lss-planner.user.js)
+[https://timplay33.github.io/lss-planner.user.js/lss-planner.user.js](https://timplay33.github.io/lss-planner.user.js/lss-planner.user.js)
