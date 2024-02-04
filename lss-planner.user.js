@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         LSS-Planner
-// @namespace    http://127.0.0.1:5500/
+// @namespace    https://timplay33.github.io/lss-planner.user.js/
 // @homepage     https://github.com/timplay33/lss-planner.user.js/
 // @version      0.3.5
 // @description  LSS-Planner
@@ -12,7 +12,7 @@
 // ==/UserScript==
 
 window.lssp = {};
-window.lssp.lsspURL = "http://127.0.0.1:5500/";
+window.lssp.lsspURL = "https://timplay33.github.io/lss-planner.user.js/";
 window.lssp.scriptName = "LSS-Planner";
 window.lssp.dbName = "LSS-Planner";
 
