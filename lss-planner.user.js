@@ -11,14 +11,12 @@
 // @grant        none
 // ==/UserScript==
 
-window.lssp = {};
-window.lssp.lsspURL = "https://timplay33.github.io/lss-planner.user.js/";
-window.lssp.scriptName = "LSS-Planner";
-window.lssp.dbName = "LSS-Planner";
+sessionStorage.setItem("scriptName", "LSS-Planner");
+sessionStorage.setItem("dbName", "LSS-Planner");
 
 (function () {
 	const script = document.createElement("script");
-	script.src = window.lssp.lsspURL + `core.js`;
+	script.src = `https://timplay33.github.io/lss-planner.user.js/dist/core.js`;
 	script.setAttribute("type", "module");
 	script.setAttribute("async", "");
 	document.head.append(script);
