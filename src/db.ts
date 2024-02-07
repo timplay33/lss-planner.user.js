@@ -1,4 +1,4 @@
-import { Building } from "./types/types";
+import { LsspBuilding } from "./types/types";
 
 export function openDatabase(): Promise<IDBDatabase> {
 	return new Promise((resolve, reject) => {
@@ -28,7 +28,10 @@ export function openDatabase(): Promise<IDBDatabase> {
 	});
 }
 
-export function addData(db: IDBDatabase, building: Building): Promise<void> {
+export function addData(
+	db: IDBDatabase,
+	building: LsspBuilding
+): Promise<void> {
 	return new Promise((resolve, reject) => {
 		const transaction = db.transaction(["buildings"], "readwrite");
 		const objectStore = transaction.objectStore("buildings");
@@ -43,7 +46,10 @@ export function addData(db: IDBDatabase, building: Building): Promise<void> {
 		};
 	});
 }
-export function getElementById(db: IDBDatabase, id: number): Promise<Building> {
+export function getElementById(
+	db: IDBDatabase,
+	id: number
+): Promise<LsspBuilding> {
 	return new Promise((resolve, reject) => {
 		const transaction = db.transaction(["buildings"], "readonly");
 		const objectStore = transaction.objectStore("buildings");
@@ -58,7 +64,7 @@ export function getElementById(db: IDBDatabase, id: number): Promise<Building> {
 		};
 	});
 }
-export function getAllElements(db: IDBDatabase): Promise<Building[]> {
+export function getAllElements(db: IDBDatabase): Promise<LsspBuilding[]> {
 	return new Promise((resolve, reject) => {
 		const transaction = db.transaction(["buildings"], "readonly");
 		const objectStore = transaction.objectStore("buildings");

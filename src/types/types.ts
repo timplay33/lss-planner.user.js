@@ -1,9 +1,10 @@
-export interface Building {
+export interface LsspBuilding {
 	id: number;
 	name: string;
 	type: number;
 	lat: number;
 	lng: number;
+	leitstelle: number;
 }
 
 export interface Dictionary {
@@ -12,3 +13,11 @@ export interface Dictionary {
 		caption: string;
 	};
 }
+
+export type Icons = {
+	[key: number]: L.Icon;
+};
+
+export type Markers = {
+	[key: number]: L.Marker;
+};
