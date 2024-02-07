@@ -1,4 +1,4 @@
-const MainModalString: string = `<div
+export const MainModalString: string = `<div
     class="modal-dialog modal-lg"
     role="document"
     style="width: 95%; margin: 40px auto"
@@ -125,15 +125,3 @@ const MainModalString: string = `<div
     </div>
 </div>
 `;
-export function addMainModal() {
-	const modal = document.createElement("div");
-	modal.className = "modal fade";
-	modal.id = `lssp-modal`;
-	modal.setAttribute("tabindex", "-1");
-	modal.setAttribute("role", "dialog");
-	modal.setAttribute("aria-labelledby", "lssp-modal-label");
-	modal.setAttribute("aria-hidden", "true");
-	modal.style.zIndex = "5000";
-	modal.innerHTML = MainModalString;
-	document.body.appendChild(modal);
-}

@@ -1,6 +1,4 @@
-import { addBuildingEditModal } from "../modals/buildingEditModal";
-import { addBuildingModal } from "../modals/buildingModal";
-import { addMainModal } from "../modals/mainModal";
+import { Modal } from "../modals/modal";
 
 export function logMessage(message: string): void {
 	console.log(
@@ -12,8 +10,17 @@ export function sleep(ms: number): Promise<void> {
 	return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+import { BuildingEditModalString } from "./../modals/buildingEditModal";
+import { BuildingModalString } from "./../modals/buildingModal";
+import { MainModalString } from "./../modals/mainModal";
+
 export function addModals() {
-	addMainModal();
-	addBuildingModal();
-	addBuildingEditModal();
+	const main = new Modal(`lssp-modal`, MainModalString);
+	const building = new Modal(`lssp-building-modal`, BuildingModalString);
+	const edit = new Modal(
+		`lssp-building-edit-modal`,
+		BuildingEditModalString,
+		true
+	);
+	console.log(main);
 }

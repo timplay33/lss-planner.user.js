@@ -1,4 +1,4 @@
-const BuildingModalString: string = `<div class="modal-dialog modal-lg" role="document" style="width: 95%; margin: 40px auto">
+export const BuildingModalString: string = `<div class="modal-dialog modal-lg" role="document" style="width: 95%; margin: 40px auto">
 <div class="modal-content" action="">
     <div class="modal-header">
         <h1 class="modal-title" id="lssp-building-modal-label">LSS-Planner</h1>
@@ -23,16 +23,3 @@ const BuildingModalString: string = `<div class="modal-dialog modal-lg" role="do
     </form>
 </div>
 </div>`;
-
-export function addBuildingModal() {
-	const modal = document.createElement("div");
-	modal.className = "modal fade";
-	modal.id = `lssp-building-modal`;
-	modal.setAttribute("tabindex", "-1");
-	modal.setAttribute("role", "dialog");
-	modal.setAttribute("aria-labelledby", "lssp-building-modal-label");
-	modal.setAttribute("aria-hidden", "true");
-	modal.style.zIndex = "5000";
-	modal.innerHTML = BuildingModalString;
-	document.body.appendChild(modal);
-}

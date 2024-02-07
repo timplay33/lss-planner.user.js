@@ -1,6 +1,6 @@
 import { Building } from "@lss-manager/missionchief-type-definitions/src/api/Building";
 
-const BuildingEditModalString: string = `
+export const BuildingEditModalString: string = `
 <div class="modal-dialog modal-lg" role="document" style="width: 95%; margin: 40px auto">
     <div class="modal-content" action="">
         <div class="modal-header">
@@ -75,24 +75,3 @@ const BuildingEditModalString: string = `
         </form>
     </div>
 </div>`;
-
-export function addBuildingEditModal() {
-	const modal = document.createElement("div");
-	modal.className = "modal fade";
-	modal.id = `lssp-building-edit-modal`;
-	modal.setAttribute("tabindex", "-1");
-	modal.setAttribute("role", "dialog");
-	modal.setAttribute("aria-labelledby", "lssp-building-edit-modal-label");
-	modal.setAttribute("aria-hidden", "true");
-	modal.style.zIndex = "5000";
-	modal.innerHTML = BuildingEditModalString;
-	document.body.appendChild(modal);
-	$.getJSON("../api/buildings", function (data) {
-		data = data.filter((leitstelle: Building) => leitstelle.building_type == 7);
-		data.forEach((leitstelle: Building) => {
-			$("#lssp-building-modal-building-leitstelle").append(
-				`<option value="${leitstelle.id}">${leitstelle.caption}</option>`
-			);
-		});
-	});
-}
