@@ -1,10 +1,9 @@
-import * as L from "leaflet";
 import { Modal_Building } from "../../modals";
 import { getElementById } from "../../db";
 import { db, dictionary } from "../../core";
 import { LsspBuilding } from "../../types/types";
 declare const map: L.Map;
-
+declare var L: any;
 export class Marker {
 	lat: number;
 	lng: number;
