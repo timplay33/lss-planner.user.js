@@ -1,4 +1,4 @@
-import { BuildingModal, Modal } from "../lib/classes/modal";
+import { BuildingEditModal, BuildingModal, Modal } from "../lib/classes/modal";
 import {
 	BuildingEditModalString,
 	BuildingModalString,
@@ -10,7 +10,7 @@ export const Modal_Building = new BuildingModal(
 	`lssp-building-modal`,
 	BuildingModalString
 );
-export const Modal_Building_Edit = new Modal(
+export const Modal_Building_Edit = new BuildingEditModal(
 	`lssp-building-edit-modal`,
 	BuildingEditModalString
 );

@@ -53,3 +53,22 @@ export class BuildingModal extends Modal {
 		});
 	}
 }
+
+export class BuildingEditModal extends Modal {
+	public openWithData(building: building): void {
+		this.open();
+		document
+			.getElementById(`lssp-building-edit-modal-form`)
+			?.setAttribute("data", JSON.stringify(building));
+
+		let modal_title = document.getElementById(
+			"lssp-building-modal-building-name"
+		);
+		modal_title?.setAttribute("value", building.name || "");
+
+		$("#lssp-building-modal-building-type").val(building.type || NaN);
+		$("#lssp-building-modal-building-leitstelle").val(
+			building.leitstelle || NaN
+		);
+	}
+}

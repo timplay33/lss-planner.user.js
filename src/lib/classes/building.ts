@@ -32,6 +32,10 @@ export class building {
 		this.lng = obj.lng;
 		this.leitstelle = obj.leitstelle;
 	}
+	setLatLng(latlng: L.LatLng) {
+		this.lat = latlng.lat;
+		this.lng = latlng.lng;
+	}
 	get() {
 		return {
 			id: this.id as number,
