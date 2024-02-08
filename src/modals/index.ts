@@ -1,7 +1,9 @@
 import { BuildingModal, Modal } from "../lib/modal";
-import { BuildingEditModalString } from "./buildingEditModal";
-import { BuildingModalString } from "./buildingModal";
-import { MainModalString } from "./mainModal";
+import {
+	BuildingEditModalString,
+	BuildingModalString,
+	MainModalString,
+} from "./Modals";
 
 export const Modal_Main = new Modal(`lssp-modal`, MainModalString);
 export const Modal_Building = new BuildingModal(

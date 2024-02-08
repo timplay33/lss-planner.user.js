@@ -11,19 +11,13 @@ export function SetEventListeners() {
 			)
 			.then((buildings) =>
 				buildings.sort().forEach((b) => {
-					$("#lssp-modal-dash-table-body").append(`
-                    <tr>
-                    <td>
-                    <img
-                            src="${dictionary[b.type].icon}"
-                            alt="icon ${dictionary[b.type].caption}"
-                            />
-                    </td>
-                    <td><a id="lssp-modal-dash-table-body-link">${
-											b.name
-										}</a></td>
-                                        <td>${dictionary[b.type].caption}</td>
-                </tr>`);
+					$("#lssp-modal-dash-table-body").append(
+						`<tr><td><img src="${dictionary[b.type].icon}" alt="icon ${
+							dictionary[b.type].caption
+						}"></td><td><a id="lssp-modal-dash-table-body-link">${
+							b.name
+						}</a></td><td>${dictionary[b.type].caption}</td></tr>`
+					);
 					let Buttons = document.querySelectorAll(
 						`#lssp-modal-dash-table-body-link`
 					);
