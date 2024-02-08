@@ -9,13 +9,15 @@ export const dictionary: Dictionary = dictionaryImport;
 export const db: IDBDatabase = await openDatabase();
 
 async function main() {
+	// StatUp
 	logMessage("Starting...");
 
+	// UI
 	addLeitstellenToEditModal();
-
 	addMenuEntry();
 	SetEventListeners();
 
+	// Map
 	setMarkers();
 }
 main();

@@ -7,16 +7,14 @@ export function SetEventListeners() {
 		Modal_Main.open();
 		await getAllElements(db)
 			.then((buildings) =>
-				buildings.sort((a, b) => a.name.localeCompare(b.name))
+				buildings.sort((a, b) => a.get().name.localeCompare(b.get().name))
 			)
 			.then((buildings) =>
 				buildings.sort().forEach((b) => {
 					$("#lssp-modal-dash-table-body").append(
-						`<tr><td><img src="${dictionary[b.type].icon}" alt="icon ${
-							dictionary[b.type].caption
-						}"></td><td><a id="lssp-modal-dash-table-body-link">${
+						`<tr><td><img src="${b.getIconURL()}" alt="icon ${b.getTypeName()}"></td><td><a id="lssp-modal-dash-table-body-link">${
 							b.name
-						}</a></td><td>${dictionary[b.type].caption}</td></tr>`
+						}</a></td><td>${b.getTypeName()}</td></tr>`
 					);
 					let Buttons = document.querySelectorAll(
 						`#lssp-modal-dash-table-body-link`

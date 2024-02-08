@@ -1,4 +1,4 @@
-import { LsspBuilding } from "./types/types";
+import { building } from "./lib/classes/building";
 
 export function openDatabase(): Promise<IDBDatabase> {
 	return new Promise((resolve, reject) => {
@@ -28,10 +28,7 @@ export function openDatabase(): Promise<IDBDatabase> {
 	});
 }
 
-export function addData(
-	db: IDBDatabase,
-	building: LsspBuilding
-): Promise<void> {
+export function addData(db: IDBDatabase, building: building): Promise<void> {
 	return new Promise((resolve, reject) => {
 		const transaction = db.transaction(["buildings"], "readwrite");
 		const objectStore = transaction.objectStore("buildings");
@@ -46,10 +43,7 @@ export function addData(
 		};
 	});
 }
-export function getElementById(
-	db: IDBDatabase,
-	id: number
-): Promise<LsspBuilding> {
+export function getElementById(db: IDBDatabase, id: number): Promise<building> {
 	return new Promise((resolve, reject) => {
 		const transaction = db.transaction(["buildings"], "readonly");
 		const objectStore = transaction.objectStore("buildings");
@@ -60,11 +54,13 @@ export function getElementById(
 		};
 
 		request.onsuccess = () => {
-			resolve(request.result);
+			var b = new building();
+			b.set(request.result);
+			resolve(b);
 		};
 	});
 }
-export function getAllElements(db: IDBDatabase): Promise<LsspBuilding[]> {
+export function getAllElements(db: IDBDatabase): Promise<building[]> {
 	return new Promise((resolve, reject) => {
 		const transaction = db.transaction(["buildings"], "readonly");
 		const objectStore = transaction.objectStore("buildings");
@@ -75,7 +71,13 @@ export function getAllElements(db: IDBDatabase): Promise<LsspBuilding[]> {
 		};
 
 		request.onsuccess = () => {
-			resolve(request.result);
+			let buildings: building[] = [];
+			request.result.forEach((d) => {
+				var b = new building();
+				b.set(d);
+				buildings.push(b);
+			});
+			resolve(buildings);
 		};
 	});
 }

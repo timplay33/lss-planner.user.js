@@ -1,4 +1,4 @@
-import { BuildingModal, Modal } from "../lib/modal";
+import { BuildingModal, Modal } from "../lib/classes/modal";
 import {
 	BuildingEditModalString,
 	BuildingModalString,

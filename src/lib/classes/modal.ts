@@ -1,6 +1,5 @@
 import { Building } from "@lss-manager/missionchief-type-definitions/src/api/Building";
-import { dictionary } from "../core";
-import { LsspBuilding } from "../types/types";
+import { building } from "./building";
 
 export class Modal {
 	name: string;
@@ -26,7 +25,7 @@ export class Modal {
 }
 
 export class BuildingModal extends Modal {
-	public openWithData(building: LsspBuilding): void {
+	public openWithData(building: building): void {
 		this.open();
 		document
 			.getElementById(`lssp-building-modal-form`)
@@ -35,9 +34,7 @@ export class BuildingModal extends Modal {
 		modal_title ? (modal_title.innerHTML = `${building.name}`) : null;
 
 		let modal_type = document.getElementById("lssp-building-modal-body-type");
-		modal_type
-			? (modal_type.innerHTML = `${dictionary[building.type].caption}`)
-			: null;
+		modal_type ? (modal_type.innerHTML = `${building.getTypeName()}`) : null;
 
 		let modal_lat = document.getElementById("lssp-building-modal-body-lat");
 		modal_lat ? (modal_lat.innerHTML = `Latitude: ${building.lat}`) : null;

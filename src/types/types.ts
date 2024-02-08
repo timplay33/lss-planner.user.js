@@ -4,7 +4,7 @@ export interface LsspBuilding {
 	type: number;
 	lat: number;
 	lng: number;
-	leitstelle: number;
+	leitstelle?: number;
 }
 
 export interface Dictionary {

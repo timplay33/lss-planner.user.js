@@ -1,7 +1,8 @@
 import { Modal_Building } from "../../modals";
 import { getElementById } from "../../db";
-import { db, dictionary } from "../../core";
-import { LsspBuilding } from "../../types/types";
+import { db } from "../../core";
+import { building } from "./building";
+
 declare const map: L.Map;
 declare var L: any;
 export class Marker {
@@ -11,13 +12,13 @@ export class Marker {
 	name: string;
 	icon: L.Icon;
 	marker: L.Marker;
-	constructor(building: LsspBuilding) {
-		this.building_ID = building.id;
+	constructor(building: building) {
+		this.building_ID = building.get().id;
 		this.lat = building.lat;
 		this.lng = building.lng;
-		this.name = building.name;
+		this.name = building.get().name;
 		this.marker = this.setMarker();
-		this.icon = this.setIcon(dictionary[building.type].icon);
+		this.icon = this.setIcon(building.getIconURL());
 	}
 	getLatLng() {
 		return [this.lat, this.lng];
