@@ -7,6 +7,8 @@ export interface LsspBuilding {
 	leitstelle?: number;
 }
 
+export type LsspBuildingNoID = Omit<LsspBuilding, "id">;
+
 export interface Dictionary {
 	[key: number]: {
 		icon: string;

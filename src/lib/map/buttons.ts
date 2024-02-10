@@ -41,18 +41,17 @@ function addBuilding() {
 	function saveBuilding() {
 		$("#lssp-building-edit-modal").modal("show");
 		let b = new building();
-		b.type = 0;
+		b.type = NaN;
 		let latlng = marker.getLatLng();
 		b.setLatLng(latlng);
-		if (document.getElementById(`lssp-building-edit-modal-form`)) {
-			document
-				.getElementById(`lssp-building-edit-modal-form`)
-				?.setAttribute("data", JSON.stringify(b.get()));
-		}
+		sessionStorage.setItem(
+			"active_building",
+			JSON.stringify(b.getAllProperties())
+		);
 
-		$("#lssp-building-modal-building-name").val(b.get().name);
-		$("#lssp-building-modal-building-type").val(b.get().type);
-		$("#lssp-building-modal-building-leitstelle").val(b.get().leitstelle);
+		$("#lssp-building-modal-building-name").val(b.name);
+		$("#lssp-building-modal-building-type").val(b.type);
+		$("#lssp-building-modal-building-leitstelle").val(b.leitstelle);
 	}
 
 	let btn = document.getElementById("plan-new-building");

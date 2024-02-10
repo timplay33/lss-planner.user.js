@@ -1,5 +1,5 @@
 import { building } from "./lib/classes/building";
-import { LsspBuilding } from "./types/types";
+import { LsspBuilding, LsspBuildingNoID } from "./types/types";
 
 export function openDatabase(): Promise<IDBDatabase> {
 	return new Promise((resolve, reject) => {
@@ -31,7 +31,7 @@ export function openDatabase(): Promise<IDBDatabase> {
 
 export function addData(
 	db: IDBDatabase,
-	building: LsspBuilding
+	building: LsspBuilding | LsspBuildingNoID
 ): Promise<void> {
 	return new Promise((resolve, reject) => {
 		const transaction = db.transaction(["buildings"], "readwrite");

@@ -1,4 +1,4 @@
-import { db, dictionary } from "./core";
+import { db } from "./core";
 import { addData, deleteItemById, getAllElements } from "./db";
 import { logMessage } from "./lib";
 import { building } from "./lib/classes/building";
@@ -9,21 +9,18 @@ export function SetEventListeners() {
 		Modal_Main.open();
 		await getAllElements(db)
 			.then((buildings) =>
-				buildings.sort((a, b) => a.get().name.localeCompare(b.get().name))
+				buildings.sort((a, b) => a.name.localeCompare(b.name))
 			)
 			.then((buildings) =>
 				buildings.sort().forEach((b) => {
 					$("#lssp-modal-dash-table-body").append(
-						`<tr><td><img src="${b.getIconURL()}" alt="icon ${b.getTypeName()}"></td><td><a id="lssp-modal-dash-table-body-link">${
-							b.name
-						}</a></td><td>${b.getTypeName()}</td></tr>`
+						`<tr><td><img src="${b.iconURL}" alt="icon ${b.typeName}"></td><td><a id="lssp-modal-dash-table-body-link">${b.name}</a></td><td>${b.typeName}</td></tr>`
 					);
 					let Buttons = document.querySelectorAll(
 						`#lssp-modal-dash-table-body-link`
 					);
 					let lastButton = Buttons[Buttons.length - 1];
 					lastButton.addEventListener("click", () => {
-						console.log(b);
 						Modal_Building.openWithData(b);
 					});
 				})
@@ -37,45 +34,37 @@ export function SetEventListeners() {
 	$("#lssp-building-edit-modal-form").submit(function (event) {
 		event.preventDefault();
 		let b = new building();
-		b.set(
-			JSON.parse(
-				document
-					.getElementById("lssp-building-edit-modal-form")
-					?.getAttribute("data") || "{}"
-			)
-		);
+		b.set(JSON.parse(sessionStorage.getItem("active_building") || ""));
 		const title: string = $(
 			"#lssp-building-edit-modal-form input:text"
 		).val() as string;
-		const type: number = $(
-			"#lssp-building-modal-building-type"
-		).val() as number;
-		const leitstelle: number = $(
-			"#lssp-building-modal-building-leitstelle"
-		).val() as number;
+		const type: number =
+			($("#lssp-building-modal-building-type").val() as number) * 1;
+		const leitstelle: number =
+			($("#lssp-building-modal-building-leitstelle").val() as number) * 1;
 		logMessage(`${title} - ${type}`);
 		b.name = title;
-		b.type = type;
-		b.leitstelle = leitstelle;
-		console.log(b.get());
-		let bd = b.get() as any;
-		if (bd.id == null) {
-			delete bd.id;
+		b.type = type * 1;
+		b.leitstelle = leitstelle * 1;
+		if (b.id == 0) {
+			addData(db, b.getWithoutID());
+		} else {
+			addData(db, b.getAllProperties());
 		}
-		addData(db, bd);
 		location.reload();
 	});
 
 	// Building Modal
 	$("#lssp-building-modal-form").submit(function (event: any) {
 		event.preventDefault();
-		let building = JSON.parse(event.target.getAttribute("data"));
+		let b = new building();
+		b.set(JSON.parse(sessionStorage.getItem("active_building") || ""));
 		if (
 			event.originalEvent.submitter ==
 			document.getElementById("lssp-building-modal-form-delete")
 		) {
 			// Delete Building
-			deleteItemById(db, building.id);
+			deleteItemById(db, b.id);
 			location.reload();
 		} else if (
 			event.originalEvent.submitter ==
@@ -83,10 +72,13 @@ export function SetEventListeners() {
 		) {
 			// Open Building Build Options
 			//buildBuilding(building);
-			console.log("Building Buildings is currently not implemented", building);
+			console.log(
+				"Building Buildings is currently not implemented",
+				b.getAllProperties()
+			);
 		} else {
 			// Edit Building
-			Modal_Building_Edit.openWithData(building);
+			Modal_Building_Edit.openWithData(b);
 		}
 	});
 }

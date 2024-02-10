@@ -2,7 +2,8 @@ import { Building } from "@lss-manager/missionchief-type-definitions/src/api/Bui
 
 export function logMessage(message: string): void {
 	console.log(
-		`[${sessionStorage.getItem("scriptName") || "LSS-Planner"}]: ` + message
+		`[${sessionStorage.getItem("scriptName") || "LSS-Planner"}]: `,
+		message
 	);
 }
 

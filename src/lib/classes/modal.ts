@@ -27,14 +27,15 @@ export class Modal {
 export class BuildingModal extends Modal {
 	public openWithData(building: building): void {
 		this.open();
-		document
-			.getElementById(`lssp-building-modal-form`)
-			?.setAttribute("data", JSON.stringify(building));
+		sessionStorage.setItem(
+			"active_building",
+			JSON.stringify(building.getAllProperties())
+		);
 		let modal_title = document.getElementById("lssp-building-modal-body-title");
 		modal_title ? (modal_title.innerHTML = `${building.name}`) : null;
 
 		let modal_type = document.getElementById("lssp-building-modal-body-type");
-		modal_type ? (modal_type.innerHTML = `${building.getTypeName()}`) : null;
+		modal_type ? (modal_type.innerHTML = `${building.typeName}`) : null;
 
 		let modal_lat = document.getElementById("lssp-building-modal-body-lat");
 		modal_lat ? (modal_lat.innerHTML = `Latitude: ${building.lat}`) : null;
@@ -57,9 +58,11 @@ export class BuildingModal extends Modal {
 export class BuildingEditModal extends Modal {
 	public openWithData(building: building): void {
 		this.open();
-		document
-			.getElementById(`lssp-building-edit-modal-form`)
-			?.setAttribute("data", JSON.stringify(building));
+
+		sessionStorage.setItem(
+			"active_building",
+			JSON.stringify(building.getAllProperties())
+		);
 
 		let modal_title = document.getElementById(
 			"lssp-building-modal-building-name"
