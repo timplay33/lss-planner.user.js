@@ -1,6 +1,6 @@
 import { db } from "./core";
 import { addData, deleteItemById, getAllElements } from "./db";
-import { logMessage } from "./lib";
+import { buildBuilding, logMessage } from "./lib";
 import { building } from "./lib/classes/building";
 import { Modal_Building, Modal_Building_Edit, Modal_Main } from "./modals";
 export function SetEventListeners() {
@@ -71,7 +71,7 @@ export function SetEventListeners() {
 			document.getElementById("lssp-building-modal-form-build")
 		) {
 			// Open Building Build Options
-			//buildBuilding(building);
+			buildBuilding(b);
 			console.log(
 				"Building Buildings is currently not implemented",
 				b.getAllProperties()

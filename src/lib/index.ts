@@ -1,4 +1,7 @@
 import { Building } from "@lss-manager/missionchief-type-definitions/src/api/Building";
+import { db } from "../core";
+import { building } from "./classes/building";
+import { deleteItemById } from "../db";
 
 export function logMessage(message: string): void {
 	console.log(
@@ -40,5 +43,23 @@ export function addLeitstellenToEditModal() {
 				`<option value="${leitstelle.id}">${leitstelle.caption}</option>`
 			);
 		});
+	});
+}
+declare const building_new_marker: any;
+declare var L: any;
+declare function building_new_dragend(): any;
+export async function buildBuilding(b: building) {
+	let modal = $(`#lssp-building-modal`);
+	modal.modal("hide");
+	document.getElementById("build_new_building")?.click();
+	await sleep(500);
+	$("#building_building_type").val(b.type).trigger("change");
+	$("#building_name").val(b.name).trigger("keydown");
+	building_new_marker.setLatLng(L.latLng(b.lat, b.lng));
+	building_new_dragend();
+	$("#building_leitstelle_building_id").val(b.leitstelle).trigger("change");
+	$("#new_building").on("submit", function () {
+		logMessage("Build: " + b.name);
+		deleteItemById(db, b.id);
 	});
 }

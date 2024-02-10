@@ -39,9 +39,11 @@ und drücke auf den Link
 
 Bis zur fertigstellung:
 
-- [ ] Gebäude semi automatisch bauen
+- [x] Gebäude semi automatisch bauen
 - [ ] Daten als Json Exportieren
 - [ ] Daten als Json Importieren
+
 optional:
+
 - [ ] Daten in Notizen Speichern
 - [ ] Daten aus Notizen Importieren
