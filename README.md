@@ -34,3 +34,16 @@ und mehr....
 Installiere [Tampermonkey](https://www.tampermonkey.net/)
 und drücke auf den Link
 [https://timplay33.github.io/lss-planner.user.js/lss-planner.user.js](https://timplay33.github.io/lss-planner.user.js/lss-planner.user.js)
+
+## v0.5.0 : TypeScript
+
+Bis zur fertigstellung:
+
+- [x] Gebäude semi automatisch bauen
+- [x] Daten als Json Exportieren
+- [x] Daten als Json Importieren
+
+optional:
+
+- [ ] Daten in Notizen Speichern
+- [ ] Daten aus Notizen Importieren
