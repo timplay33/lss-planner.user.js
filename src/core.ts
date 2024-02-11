@@ -1,7 +1,15 @@
 import type { Dictionary } from "./types/types";
-import { openDatabase } from "./db";
+import { getAllElements, openDatabase } from "./db";
 import * as dictionaryImport from "./public/dictionary.json";
-import { addLeitstellenToEditModal, addMenuEntry, logMessage } from "./lib";
+import {
+	addLeitstellenToEditModal,
+	addMenuEntry,
+	compressJSON,
+	getNotes,
+	getToken,
+	logMessage,
+	saveToNotes,
+} from "./lib";
 import { SetEventListeners } from "./EventListeners";
 import { setMarkers } from "./lib/map/marker";
 import { addButtonsToMap } from "./lib/map/buttons";
@@ -21,5 +29,13 @@ async function main() {
 	// Map
 	setMarkers();
 	addButtonsToMap();
+
+	console.log(JSON.stringify(compressJSON(await getAllElements(db))));
+	//console.log(
+	//	await saveToNotes(
+	//		JSON.stringify(compressJSON(await getAllElements(db))),
+	//		(await getToken()) as string
+	//	)
+	//);
 }
 main();
