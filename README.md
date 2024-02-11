@@ -37,13 +37,4 @@ und drücke auf den Link
 
 ## v0.5.0 : TypeScript
 
-Bis zur fertigstellung:
-
-- [x] Gebäude semi automatisch bauen
-- [x] Daten als Json Exportieren
-- [x] Daten als Json Importieren
-
-optional:
-
-- [ ] Daten in Notizen Speichern
-- [ ] Daten aus Notizen Importieren
+with version 0.5.0 the hole project has been restructured, the userscript file will now load a prebuilt js file, which is build with the webpack bundler. The source code is mostly written is TypeScript to give the project type safety. Each building is created with a Class and is saved with IndexedDB in the browser. The buildings may be exported to a JSON file in the main modal.
