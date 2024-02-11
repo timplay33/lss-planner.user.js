@@ -34,3 +34,7 @@ und mehr....
 Installiere [Tampermonkey](https://www.tampermonkey.net/)
 und drücke auf den Link
 [https://timplay33.github.io/lss-planner.user.js/lss-planner.user.js](https://timplay33.github.io/lss-planner.user.js/lss-planner.user.js)
+
+## v0.5.0 : TypeScript
+
+with version 0.5.0 the hole project has been restructured, the userscript file will now load a prebuilt js file, which is build with the webpack bundler. The source code is mostly written is TypeScript to give the project type safety. Each building is created with a Class and is saved with IndexedDB in the browser. The buildings may be exported to a JSON file in the main modal.

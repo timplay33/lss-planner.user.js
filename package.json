@@ -1,0 +1,16 @@
+{
+	"devDependencies": {
+		"@lss-manager/missionchief-type-definitions": "^0.0.3",
+		"@types/bootstrap": "^5.2.10",
+		"@types/jquery": "^3.5.29",
+		"@types/leaflet": "^1.9.8",
+		"leaflet": "^1.9.4",
+		"ts-loader": "^9.5.1",
+		"webpack": "^5.90.1",
+		"webpack-cli": "^5.1.4"
+	},
+	"scripts": {
+		"dev": "npx webpack --watch --config webpack.config.js",
+		"build": "npx webpack --config webpack.prod.config.js"
+	}
+}
