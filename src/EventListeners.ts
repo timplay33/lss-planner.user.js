@@ -1,6 +1,11 @@
 import { db } from "./core";
 import { addData, deleteItemById, getAllElements } from "./db";
-import { buildBuilding, logMessage } from "./lib";
+import {
+	buildBuilding,
+	convertDate,
+	downloadObjectAsJson,
+	logMessage,
+} from "./lib";
 import { building } from "./lib/classes/building";
 import { Modal_Building, Modal_Building_Edit, Modal_Main } from "./modals";
 export function SetEventListeners() {
@@ -72,13 +77,68 @@ export function SetEventListeners() {
 		) {
 			// Open Building Build Options
 			buildBuilding(b);
-			console.log(
-				"Building Buildings is currently not implemented",
-				b.getAllProperties()
-			);
+			logMessage("Building is being built", b.getAllProperties());
 		} else {
 			// Edit Building
 			Modal_Building_Edit.openWithData(b);
 		}
+	});
+
+	// Export Buildings to JSON
+	$("#lssp-modal-export").on("click", async function () {
+		let buildings = await getAllElements(db);
+		let modifiedBuildings = buildings.map((b) => b.getAllProperties());
+		downloadObjectAsJson(
+			modifiedBuildings,
+			`LSS-Planner-${convertDate(new Date())}`
+		);
+	});
+	// delete all Buildings
+	$("#lssp-modal-delete").on("click", async function () {
+		if (confirm("Wirklich alles Löschen?")) {
+			await getAllElements(db).then((b) => {
+				b.forEach((a) => deleteItemById(db, a.id));
+				logMessage("Alles Gelöscht");
+				location.reload();
+			});
+		} else {
+			logMessage("Löschen Abgebrochen");
+		}
+	});
+	// Import Buildings from JSON
+	$("#lssp-modal-import").on("click", function () {
+		var filesInput: HTMLInputElement = document.getElementById(
+			"lssp-modal-selectFiles"
+		) as HTMLInputElement;
+		var files: FileList = filesInput.files as FileList;
+
+		var fr = new FileReader();
+
+		fr.onload = function (e) {
+			var result: any = JSON.parse(e.target?.result as string);
+			let buildings: building[] = [];
+			result.forEach((b: any) => {
+				let bd = new building();
+				bd.set(b);
+				buildings.push(bd);
+			});
+			console.log(buildings);
+			buildings.forEach((b) => {
+				$("#lssp-modal-body-output").append(`
+						<tr>
+						<td ><img src="${b.iconURL}" alt="icon ${b.typeName}"></td>
+						<td >${b.name}</td>
+						<td >${b.typeName}</td>
+					</tr>`);
+			});
+			$("#lssp-modal-import-save").on("click", function () {
+				buildings.forEach((b) => {
+					addData(db, b.getAllProperties());
+					location.reload();
+				});
+			});
+		};
+
+		fr.readAsText(files.item(0) as File);
 	});
 }

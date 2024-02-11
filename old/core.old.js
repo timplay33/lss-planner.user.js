@@ -1,19 +1,3 @@
-async function buildBuilding(building) {
-	let modal = $(`#lssp-building-modal`);
-	modal.modal("hide");
-	document.getElementById("build_new_building").click();
-	await sleep(500);
-	$("#building_building_type").val(building.type);
-	$("#building_name").val(building.name);
-	building_new_marker.setLatLng(L.latLng(building.lat, building.lng));
-	building_new_dragend();
-	$("#building_leitstelle_building_id").val(building.leitstelle);
-	$("#new_building").on("submit", function () {
-		logMessage("Build: " + building.name);
-		deleteElementById(window.lssp.db, building.id);
-	});
-}
-
 // Save to Notes Feature
 var stringToHTML = function (str) {
 	var dom = document.createElement("div");
@@ -70,24 +54,6 @@ async function saveToNotes(text, token) {
 	});
 }
 
-// Download OBJECT as JSON
-function downloadObjectAsJson(exportObj, exportName) {
-	var dataStr =
-		"data:text/json;charset=utf-8," +
-		encodeURIComponent(JSON.stringify(exportObj));
-	var downloadAnchorNode = document.createElement("a");
-	downloadAnchorNode.setAttribute("href", dataStr);
-	downloadAnchorNode.setAttribute("download", exportName + ".json");
-	document.body.appendChild(downloadAnchorNode);
-	downloadAnchorNode.click();
-	downloadAnchorNode.remove();
-}
-
-// Download Building Data as Json
-$("#lssp-modal-export").on("click", async function () {
-	downloadObjectAsJson(await getAllElements(window.lssp.db), "LSS-Planner");
-});
-
 // Export Building Data to Notes
 $("#lssp-modal-export-notes").on("click", async function () {
 	if (confirm("Wirklich alles Löschen?")) {
@@ -100,50 +66,6 @@ $("#lssp-modal-export-notes").on("click", async function () {
 		logMessage("in Notizen speichern abgebrochen");
 	}
 });
-
-// Delete all Buildings from database
-$("#lssp-modal-delete").on("click", async function () {
-	if (confirm("Wirklich alles Löschen?")) {
-		await getAllElements(window.lssp.db).then((b) => {
-			b.forEach((a) => deleteElementById(window.lssp.db, a.id));
-			logMessage("Alles Gelöscht");
-		});
-	} else {
-		logMessage("Löschen Abgebrochen");
-	}
-});
-
-// Import From JSON to Database
-document.getElementById("lssp-modal-import").onclick = function () {
-	var files = document.getElementById("lssp-modal-selectFiles").files;
-	if (files.length <= 0) {
-		return false;
-	}
-
-	var fr = new FileReader();
-
-	fr.onload = function (e) {
-		var result = JSON.parse(e.target.result);
-		result.forEach((b) => {
-			$("#lssp-modal-body-output").append(`
-					<tr>
-					<td ><img src="${dictionary[b.type].icon}" alt="icon ${
-				dictionary[b.type].caption
-			}"></td>
-					<td >${b.name}</td>
-					<td >${dictionary[b.type].caption}</td>
-				</tr>`);
-		});
-		$("#lssp-modal-import-save").on("click", function () {
-			result.forEach((b) => {
-				addData(window.lssp.db, b);
-				location.reload();
-			});
-		});
-	};
-
-	fr.readAsText(files.item(0));
-};
 
 // Import From Notes to Database
 $("#lssp-modal-import-notes").on("click", async function () {

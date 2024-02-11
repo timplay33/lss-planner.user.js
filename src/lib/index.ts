@@ -3,10 +3,10 @@ import { db } from "../core";
 import { building } from "./classes/building";
 import { deleteItemById } from "../db";
 
-export function logMessage(message: string): void {
+export function logMessage(...message: Array<any>): void {
 	console.log(
 		`[${sessionStorage.getItem("scriptName") || "LSS-Planner"}]: `,
-		message
+		...message
 	);
 }
 
@@ -62,4 +62,30 @@ export async function buildBuilding(b: building) {
 		logMessage("Build: " + b.name);
 		deleteItemById(db, b.id);
 	});
+}
+
+export function downloadObjectAsJson(exportObj: object, exportName: string) {
+	var dataStr =
+		"data:text/json;charset=utf-8," +
+		encodeURIComponent(JSON.stringify(exportObj));
+	var downloadAnchorNode = document.createElement("a");
+	downloadAnchorNode.setAttribute("href", dataStr);
+	downloadAnchorNode.setAttribute("download", exportName + ".json");
+	document.body.appendChild(downloadAnchorNode);
+	downloadAnchorNode.click();
+	downloadAnchorNode.remove();
+}
+
+export function convertDate(date: Date): string {
+	let now = new Date(date);
+	let day = now
+		.toLocaleDateString()
+		.split(".")
+		.map((x) => (x.length < 2 ? 0 + x : x))
+		.join("-");
+
+	let time = [now.getHours(), now.getMinutes()]
+		.map((x) => (x.toString().length < 2 ? 0 + x.toString() : x.toString()))
+		.join("-");
+	return [day, time].join("-");
 }

@@ -40,8 +40,8 @@ und drücke auf den Link
 Bis zur fertigstellung:
 
 - [x] Gebäude semi automatisch bauen
-- [ ] Daten als Json Exportieren
-- [ ] Daten als Json Importieren
+- [x] Daten als Json Exportieren
+- [x] Daten als Json Importieren
 
 optional:
 
