@@ -7,6 +7,14 @@ import {
 	logMessage,
 } from "./lib";
 import { building } from "./lib/classes/building";
+import {
+	feuerwehrMarkerGroup,
+	otherMarkerGroup,
+	polizeiMarkerGroup,
+	rettungsMarkerGroup,
+	schulenMarkerGroup,
+	thwMarkerGroup,
+} from "./lib/classes/marker";
 import { Modal_Building, Modal_Building_Edit, Modal_Main } from "./modals";
 export function SetEventListeners() {
 	// Main Modal
@@ -141,4 +149,81 @@ export function SetEventListeners() {
 
 		fr.readAsText(files.item(0) as File);
 	});
+
+	// hide markers options
+	$("#lssp-modal-settings-hide-rd").on("click", function () {
+		if (sessionStorage.getItem("isRdHidden") == "true") {
+			map.addLayer(rettungsMarkerGroup);
+			sessionStorage.setItem("isRdHidden", "false");
+			this.innerHTML = "verstecken";
+		} else {
+			sessionStorage.setItem("isRdHidden", "true");
+			map.removeLayer(rettungsMarkerGroup);
+			this.innerHTML = "zeigen";
+		}
+	});
+	$("#lssp-modal-settings-hide-feu").on("click", function () {
+		if (sessionStorage.getItem("isFeuHidden") == "true") {
+			map.addLayer(feuerwehrMarkerGroup);
+			sessionStorage.setItem("isFeuHidden", "false");
+			this.innerHTML = "verstecken";
+		} else {
+			sessionStorage.setItem("isFeuHidden", "true");
+			map.removeLayer(feuerwehrMarkerGroup);
+			this.innerHTML = "zeigen";
+		}
+	});
+	$("#lssp-modal-settings-hide-pol").on("click", function () {
+		if (sessionStorage.getItem("isPolHidden") == "true") {
+			map.addLayer(polizeiMarkerGroup);
+			sessionStorage.setItem("isPolHidden", "false");
+			this.innerHTML = "verstecken";
+		} else {
+			sessionStorage.setItem("isPolHidden", "true");
+			map.removeLayer(polizeiMarkerGroup);
+			this.innerHTML = "zeigen";
+		}
+	});
+	$("#lssp-modal-settings-hide-thw").on("click", function () {
+		if (sessionStorage.getItem("isThwHidden") == "true") {
+			map.addLayer(thwMarkerGroup);
+			sessionStorage.setItem("isThwHidden", "false");
+			this.innerHTML = "verstecken";
+		} else {
+			sessionStorage.setItem("isThwHidden", "true");
+			map.removeLayer(thwMarkerGroup);
+			this.innerHTML = "zeigen";
+		}
+	});
+	$("#lssp-modal-settings-hide-school").on("click", function () {
+		if (sessionStorage.getItem("isSchoolHidden") == "true") {
+			map.addLayer(schulenMarkerGroup);
+			sessionStorage.setItem("isSchoolHidden", "false");
+			this.innerHTML = "verstecken";
+		} else {
+			sessionStorage.setItem("isSchoolHidden", "true");
+			map.removeLayer(schulenMarkerGroup);
+			this.innerHTML = "zeigen";
+		}
+	});
+	$("#lssp-modal-settings-hide-other").on("click", function () {
+		if (sessionStorage.getItem("isOtherHidden") == "true") {
+			map.addLayer(otherMarkerGroup);
+			sessionStorage.setItem("isOtherHidden", "false");
+			this.innerHTML = "verstecken";
+		} else {
+			sessionStorage.setItem("isOtherHidden", "true");
+			map.removeLayer(otherMarkerGroup);
+			this.innerHTML = "zeigen";
+		}
+	});
+	$("#lssp-modal-settings-hide-all").on("click", function () {
+		$("#lssp-modal-settings-hide-rd").trigger("click");
+		$("#lssp-modal-settings-hide-feu").trigger("click");
+		$("#lssp-modal-settings-hide-pol").trigger("click");
+		$("#lssp-modal-settings-hide-thw").trigger("click");
+		$("#lssp-modal-settings-hide-school").trigger("click");
+		$("#lssp-modal-settings-hide-other").trigger("click");
+	});
 }
+declare const map: L.Map;
