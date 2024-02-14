@@ -1,6 +1,14 @@
 import { Building } from "@lss-manager/missionchief-type-definitions/src/api/Building";
 import { building } from "./building";
-
+import {
+	feuerwehrMarkerGroup,
+	otherMarkerGroup,
+	polizeiMarkerGroup,
+	rettungsMarkerGroup,
+	schulenMarkerGroup,
+	thwMarkerGroup,
+} from "./marker";
+declare const map: L.Map;
 export class Modal {
 	name: string;
 	constructor(name: string, innerHTML: string) {
@@ -15,6 +23,27 @@ export class Modal {
 		modal.style.zIndex = "5000";
 		modal.innerHTML = innerHTML;
 		document.body.appendChild(modal);
+
+		if (modal.id == "lssp-modal") {
+			if (sessionStorage.getItem("isRdHidden") == "true") {
+				$("#lssp-modal-settings-hide-rd").html("zeigen");
+			}
+			if (sessionStorage.getItem("isFeuHidden") == "true") {
+				$("#lssp-modal-settings-hide-feu").html("zeigen");
+			}
+			if (sessionStorage.getItem("isPolHidden") == "true") {
+				$("#lssp-modal-settings-hide-pol").html("zeigen");
+			}
+			if (sessionStorage.getItem("isThwHidden") == "true") {
+				$("#lssp-modal-settings-hide-thw").html("zeigen");
+			}
+			if (sessionStorage.getItem("isSchoolHidden") == "true") {
+				$("#lssp-modal-settings-hide-school").html("zeigen");
+			}
+			if (sessionStorage.getItem("isOtherHidden") == "true") {
+				$("#lssp-modal-settings-hide-other").html("zeigen");
+			}
+		}
 	}
 	public close() {
 		$("#" + this.name).modal("hide");
