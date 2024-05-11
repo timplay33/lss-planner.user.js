@@ -6,6 +6,9 @@ ist ein UserScript für das [Leitstellenspiel](https://leitstellenspiel.de), wel
 
 Das Script fügt einen Knopf auf die Benutzeroberfläche hinzu. Dieser Knopf fügt wie beim Bau von Gebäuden einen Marker hinzu, welcher frei beweglich ist. Ist die Position gewählt, kann der Marker gespeichert werden. Dieser wandelt sich dann in einen Gebäudemarker um, durch das Klicken auf den Marker kann dieser bearbeitet oder gelöscht werden. Die Marker werden in der IndexedDB direkt im Browser gespeichert und sind auch nach einem Neuladen der Seite weiterhin vorhanden.
 
+Hier ist der ungefähre Aufbau des Skriptes, so wie die Funktion gezeigt:
+![LSS-PLANNER USER JS-1 2](https://github.com/timplay33/lss-planner.user.js/assets/55946399/47acff68-4ce2-4705-8e1b-7f3e176c9022)
+
 ## Warum ?
 
 Die Idee hinter dem Script ist es, Gebäude, welche man sich noch nicht leisten kann oder noch nicht bauen möchte, planen zu können und diese so, wenn man sie dann doch bauen möchte, leichter bauen zu können.
@@ -24,7 +27,7 @@ Die Idee hinter dem Script ist es, Gebäude, welche man sich noch nicht leisten 
 - [x] Ausgelesene Json Daten in DB speichern
 - [x] Übersicht über alle Gebäude
 - [x] Gebäude semi automatisch bauen
-- [x] Gebäude Daten in Notizen speichern
+- [~] Gebäude Daten in Notizen speichern (Das script gibt die Daten aus, damit sie Manuel eingefügt werden können)
 - [x] Gebäude Daten aus Notizen auslesen
 
 und mehr....
