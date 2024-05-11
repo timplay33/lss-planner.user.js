@@ -27,7 +27,7 @@ Die Idee hinter dem Script ist es, Gebäude, welche man sich noch nicht leisten 
 - [x] Ausgelesene Json Daten in DB speichern
 - [x] Übersicht über alle Gebäude
 - [x] Gebäude semi automatisch bauen
-- [x] Gebäude Daten in Notizen speichern
+- [~] Gebäude Daten in Notizen speichern (Das script gibt die Daten aus, damit sie Manuel eingefügt werden können)
 - [x] Gebäude Daten aus Notizen auslesen
 
 und mehr....
