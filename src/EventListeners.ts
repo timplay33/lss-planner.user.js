@@ -15,6 +15,7 @@ import {
 	schulenMarkerGroup,
 	thwMarkerGroup,
 } from "./lib/classes/marker";
+import { getNotes, notesMarker } from "./lib/notes";
 import { Modal_Building, Modal_Building_Edit, Modal_Main } from "./modals";
 export function SetEventListeners() {
 	// Main Modal
@@ -148,6 +149,57 @@ export function SetEventListeners() {
 		};
 
 		fr.readAsText(files.item(0) as File);
+	});
+
+	// Export to Notes
+	$("#lssp-modal-export-notes").on("click", async function () {
+		logMessage("Saving to Notes...");
+		let buildings = await getAllElements(db);
+		let modifiedBuildings = buildings.map((b) => b.getAllProperties());
+
+		console.log(modifiedBuildings);
+
+		let save = `${notesMarker.start}\n ${JSON.stringify(modifiedBuildings)}\n ${
+			notesMarker.end
+		}`;
+
+		let msg = `<h2>This feature is currently disabled! But you may copy the text below into your notes:</h2> \n${save}`;
+
+		const div = document.createElement("div");
+		div.innerHTML = msg;
+		div.style.cssText = "background-color: black;";
+		this.parentElement?.append(div);
+	});
+
+	// import from Notes
+	$("#lssp-modal-import-notes").on("click", async function () {
+		const notes = await getNotes();
+		let start = notes.search(notesMarker.start);
+		let end = notes.search(notesMarker.end);
+		let data = notes.substring(start + notesMarker.start.length + 1, end);
+
+		var result: any = JSON.parse(data);
+		let buildings: building[] = [];
+		result.forEach((b: any) => {
+			let bd = new building();
+			bd.set(b);
+			buildings.push(bd);
+		});
+		console.log(buildings);
+		buildings.forEach((b) => {
+			$("#lssp-modal-body-output").append(`
+				<tr>
+				<td ><img src="${b.iconURL}" alt="icon ${b.typeName}"></td>
+				<td >${b.name}</td>
+				<td >${b.typeName}</td>
+			</tr>`);
+		});
+		$("#lssp-modal-import-save").on("click", function () {
+			buildings.forEach((b) => {
+				addData(db, b.getAllProperties());
+				location.reload();
+			});
+		});
 	});
 
 	// hide markers options
