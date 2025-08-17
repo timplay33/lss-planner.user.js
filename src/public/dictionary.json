@@ -98,5 +98,21 @@
 	"24": {
 		"icon": "/images/building_police_horse_other.png",
 		"caption": "Reiterstaffel"
+	},
+	"25": {
+		"icon": "/images/building_mountain_rescue_other.png",
+		"caption": "Bergrettungswache"
+	},
+	"26": {
+		"icon": "/images/building_coastal_rescue_other.png",
+		"caption": "Seenotrettungswache"
+	},
+	"27": {
+		"icon": "/images/building_coastal_rescue_school_other.png",
+		"caption": "Schule für Seefahrt und Seenotrettung"
+	},
+	"28": {
+		"icon": "/images/building_water_rescue_heliport_other.png",
+		"caption": "Hubschrauberstation (Seenotrettung)"
 	}
 }
