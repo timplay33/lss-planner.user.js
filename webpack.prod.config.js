@@ -8,10 +8,14 @@ module.exports = {
 		path: path.resolve(__dirname, "dist"), // Output directory
 	},
 	resolve: {
-		extensions: [".ts", ".js"], // Resolve TypeScript and JavaScript files
+		extensions: [".ts", ".js", ".html"], // Resolve TypeScript, JavaScript and template files
 	},
 	module: {
 		rules: [
+			{
+				test: /\.html$/,
+				type: "asset/source",
+			},
 			{
 				test: /\.ts$/, // Apply ts-loader for .ts files
 				use: "ts-loader",
