@@ -38,6 +38,17 @@ Installiere [Tampermonkey](https://www.tampermonkey.net/)
 und drücke auf den Link
 [https://timplay33.github.io/lss-planner.user.js/lss-planner.user.js](https://timplay33.github.io/lss-planner.user.js/lss-planner.user.js)
 
+## Development
+
+Für lokales Testen mit dem webpack dev server:
+
+1. `npm install`
+2. `npm run dev:serve`
+3. Öffne `http://127.0.0.1:5500/lss-planner.dev.user.js` in Tampermonkey oder lade es als Userscript-Helfer.
+4. Lade Leitstellenspiel neu, nachdem webpack neu gebundled hat.
+
+Der Dev-Helper lädt dann das Bundle von `http://127.0.0.1:5500/dist/core.js`.
+
 ## v0.5.0 : TypeScript
 
 with version 0.5.0 the hole project has been restructured, the userscript file will now load a prebuilt js file, which is build with the webpack bundler. The source code is mostly written is TypeScript to give the project type safety. Each building is created with a Class and is saved with IndexedDB in the browser. The buildings may be exported to a JSON file in the main modal.
