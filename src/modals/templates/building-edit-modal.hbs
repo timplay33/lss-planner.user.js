@@ -56,32 +56,9 @@
               name="building[building_type]"
             >
               <option value=""></option>
-              <option value="7">Leitstelle</option>
-              <option value="0">Feuerwache</option>
-              <option value="18">Feuerwache (Kleinwache)</option>
-              <option value="1">Feuerwehrschule</option>
-              <option value="2">Rettungswache</option>
-              <option value="20">Rettungswache (Kleinwache)</option>
-              <option value="3">Rettungsschule</option>
-              <option value="4">Krankenhaus</option>
-              <option value="5">Rettungshubschrauber-Station</option>
-              <option value="12">Schnelleinsatzgruppe (SEG)</option>
-              <option value="6">Polizeiwache</option>
-              <option value="19">Polizeiwache (Kleinwache)</option>
-              <option value="11">Bereitschaftspolizei</option>
-              <option value="17">Polizei-Sondereinheiten</option>
-              <option value="24">Reiterstaffel</option>
-              <option value="13">Polizeihubschrauberstation</option>
-              <option value="8">Polizeischule</option>
-              <option value="9">THW</option>
-              <option value="10">THW Bundesschule</option>
-              <option value="14">Bereitstellungsraum</option>
-              <option value="15">Wasserrettung</option>
-              <option value="21">Rettungshundestaffel</option>
-              <option value="25">Bergrettungswache</option>
-              <option value="26">Seenotrettungswache</option>
-              <option value="27">Schule für Seefahrt und Seenotrettung</option>
-              <option value="28">Hubschrauberstation (Seenotrettung)</option>
+              {{#each buildingTypes}}
+                <option value="{{this.key}}">{{this.caption}}</option>
+              {{/each}}
             </select>
           </div>
           <div class="input-group select required building_building_type">

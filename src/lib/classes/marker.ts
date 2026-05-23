@@ -1,6 +1,5 @@
 import { Modal_Building } from "../../modals";
-import { getElementById } from "../../db";
-import { db } from "../../core";
+import { Database } from "../../db";
 import { building } from "./building";
 
 export var feuerwehrMarkerGroup = L.layerGroup().addTo(map),
@@ -33,6 +32,7 @@ export class CustomMarker {
 	}
 
 	private createMarker(): L.Marker {
+		const db = Database.getInstance();
 		const customIcon = L.icon({
 			iconUrl: this.iconUrl,
 			iconSize: [32, 37], // Adjust size as needed
@@ -45,7 +45,7 @@ export class CustomMarker {
 		})
 			.bindTooltip(this.name)
 			.on("click", async () => {
-				Modal_Building.openWithData(await getElementById(db, this.buildingId));
+				Modal_Building.openWithData(await db.getElementById(this.buildingId));
 			});
 	}
 	public get LatLng() {

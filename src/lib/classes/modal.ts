@@ -1,4 +1,3 @@
-import { Building } from "@lss-manager/missionchief-type-definitions/src/api/Building";
 import { building } from "./building";
 import {
 	feuerwehrMarkerGroup,
@@ -54,7 +53,7 @@ export class Modal {
 }
 
 export class BuildingModal extends Modal {
-	public openWithData(building: building): void {
+	public async openWithData(building: building): Promise<void> {
 		this.open();
 		sessionStorage.setItem(
 			"active_building",
@@ -75,12 +74,10 @@ export class BuildingModal extends Modal {
 		let modal_leitstelle = document.getElementById(
 			"lssp-building-modal-body-leitstelle"
 		);
-		$.getJSON("../api/buildings", function (data: Building[]) {
-			data = data.filter((l) => l.id == building.leitstelle);
-			modal_leitstelle
-				? (modal_leitstelle.innerHTML = `Leitstelle: ${data[0]?.caption || ""}`)
-				: null;
-		});
+		const leitstellenName = await building.getLeitstellenName();
+		modal_leitstelle
+			? (modal_leitstelle.innerHTML = `Leitstelle: ${leitstellenName}`)
+			: null;
 	}
 }
 

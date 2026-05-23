@@ -1,5 +1,4 @@
-import { db } from "./core";
-import { addData, deleteItemById, getAllElements } from "./db";
+import { Database } from "./db";
 import {
 	buildBuilding,
 	convertDate,
@@ -20,31 +19,27 @@ import { Modal_Building, Modal_Building_Edit, Modal_Main } from "./modals";
 import BuildingRowTemplate from "./modals/templates/building-row.hbs";
 import ExportNotesTemplate from "./modals/templates/export-notes.hbs";
 export function SetEventListeners() {
+	const db = Database.getInstance();
 	// Main Modal
 	async function LsspMainModal() {
 		Modal_Main.open();
-		await getAllElements(db)
-			.then((buildings) =>
-				buildings.sort((a, b) => a.name.localeCompare(b.name))
-			)
-			.then((buildings) =>
-				buildings.sort().forEach((b) => {
-					$("#lssp-modal-dash-table-body").append(
-						BuildingRowTemplate({
-							iconURL: b.iconURL,
-							name: b.name,
-							typeName: b.typeName,
-						})
-					);
-					let Buttons = document.querySelectorAll(
-						`#lssp-modal-dash-table-body-link`
-					);
-					let lastButton = Buttons[Buttons.length - 1];
-					lastButton.addEventListener("click", () => {
-						Modal_Building.openWithData(b);
-					});
+		const buildings = (await db.getAllElements()).sort((a, b) =>
+			a.name.localeCompare(b.name)
+		);
+		for (const b of buildings) {
+			$("#lssp-modal-dash-table-body").append(
+				BuildingRowTemplate({
+					iconURL: b.iconURL,
+					name: b.name,
+					typeName: b.typeName,
 				})
 			);
+			const buttons = document.querySelectorAll(`#lssp-modal-dash-table-body-link`);
+			const lastButton = buttons[buttons.length - 1];
+			lastButton.addEventListener("click", () => {
+				void Modal_Building.openWithData(b);
+			});
+		}
 	}
 	$("#lssp-button").on("click", () => {
 		LsspMainModal();
@@ -67,9 +62,9 @@ export function SetEventListeners() {
 		b.type = type * 1;
 		b.leitstelle = leitstelle * 1;
 		if (b.id == 0) {
-			addData(db, b.getWithoutID());
+			void db.addData(b.getWithoutID());
 		} else {
-			addData(db, b.getAllProperties());
+			void db.addData(b.getAllProperties());
 		}
 		location.reload();
 	});
@@ -84,7 +79,7 @@ export function SetEventListeners() {
 			document.getElementById("lssp-building-modal-form-delete")
 		) {
 			// Delete Building
-			deleteItemById(db, b.id);
+			void db.deleteItemById(b.id);
 			location.reload();
 		} else if (
 			event.originalEvent.submitter ==
@@ -101,8 +96,8 @@ export function SetEventListeners() {
 
 	// Export Buildings to JSON
 	$("#lssp-modal-export").on("click", async function () {
-		let buildings = await getAllElements(db);
-		let modifiedBuildings = buildings.map((b) => b.getAllProperties());
+		const buildings = await db.getAllElements();
+		const modifiedBuildings = buildings.map((b) => b.getAllProperties());
 		downloadObjectAsJson(
 			modifiedBuildings,
 			`LSS-Planner-${convertDate(new Date())}`
@@ -111,11 +106,10 @@ export function SetEventListeners() {
 	// delete all Buildings
 	$("#lssp-modal-delete").on("click", async function () {
 		if (confirm("Wirklich alles Löschen?")) {
-			await getAllElements(db).then((b) => {
-				b.forEach((a) => deleteItemById(db, a.id));
-				logMessage("Alles Gelöscht");
-				location.reload();
-			});
+			const buildings = await db.getAllElements();
+			await Promise.all(buildings.map((a) => db.deleteItemById(a.id)));
+			logMessage("Alles Gelöscht");
+			location.reload();
 		} else {
 			logMessage("Löschen Abgebrochen");
 		}
@@ -148,10 +142,9 @@ export function SetEventListeners() {
 				);
 			});
 			$("#lssp-modal-import-save").on("click", function () {
-				buildings.forEach((b) => {
-					addData(db, b.getAllProperties());
-					location.reload();
-				});
+				void Promise.all(
+					buildings.map((b) => db.addData(b.getAllProperties()))
+				).then(() => location.reload());
 			});
 		};
 
@@ -161,8 +154,8 @@ export function SetEventListeners() {
 	// Export to Notes
 	$("#lssp-modal-export-notes").on("click", async function () {
 		logMessage("Saving to Notes...");
-		let buildings = await getAllElements(db);
-		let modifiedBuildings = buildings.map((b) => b.getAllProperties());
+		const buildings = await db.getAllElements();
+		const modifiedBuildings = buildings.map((b) => b.getAllProperties());
 
 		console.log(modifiedBuildings);
 
@@ -203,10 +196,9 @@ export function SetEventListeners() {
 			);
 		});
 		$("#lssp-modal-import-save").on("click", function () {
-			buildings.forEach((b) => {
-				addData(db, b.getAllProperties());
-				location.reload();
-			});
+			void Promise.all(
+				buildings.map((b) => db.addData(b.getAllProperties()))
+			).then(() => location.reload());
 		});
 	});
 

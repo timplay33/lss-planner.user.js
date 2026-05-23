@@ -1,102 +1,153 @@
 import { building } from "./lib/classes/building";
 import { LsspBuilding, LsspBuildingNoID } from "./types/types";
 
-export function openDatabase(): Promise<IDBDatabase> {
-	return new Promise((resolve, reject) => {
-		const request = indexedDB.open(
-			sessionStorage.getItem("dbName") || "LSS-Planner",
-			3
-		);
+export class Database {
+	private static singleton: Database | null = null;
+	private static initPromise: Promise<Database> | null = null;
+	private static readonly dbName = sessionStorage.getItem("dbName") || "LSS-Planner";
+	private static readonly dbVersion = 3;
+	private static readonly storeName = "buildings";
 
-		request.onerror = () => {
-			reject(request.error);
-		};
+	private connection: IDBDatabase | null = null;
 
-		request.onsuccess = () => {
-			resolve(request.result);
-		};
+	private constructor() {
+		// Prevent instantiation; use the static singleton API.
+	}
 
-		request.onupgradeneeded = (event: IDBVersionChangeEvent) => {
-			const db = (event.target as IDBOpenDBRequest).result;
-			const objectStore = db.createObjectStore("buildings", {
-				keyPath: "id",
-				autoIncrement: true,
-			});
-			objectStore.createIndex("id", "id", { unique: true });
-			objectStore.createIndex("name", "name", { unique: false });
-			objectStore.createIndex("type", "type", { unique: false });
-		};
-	});
-}
+	private static async openDatabase(): Promise<IDBDatabase> {
+		return new Promise((resolve, reject) => {
+			const request = indexedDB.open(Database.dbName, Database.dbVersion);
 
-export function addData(
-	db: IDBDatabase,
-	building: LsspBuilding | LsspBuildingNoID
-): Promise<void> {
-	return new Promise((resolve, reject) => {
-		const transaction = db.transaction(["buildings"], "readwrite");
-		const objectStore = transaction.objectStore("buildings");
-		const request = objectStore.put(building);
+			request.onerror = () => {
+				reject(request.error);
+			};
 
-		request.onerror = () => {
-			reject(request.error);
-		};
+			request.onsuccess = () => {
+				resolve(request.result);
+			};
 
-		request.onsuccess = () => {
-			resolve();
-		};
-	});
-}
-export function getElementById(db: IDBDatabase, id: number): Promise<building> {
-	return new Promise((resolve, reject) => {
-		const transaction = db.transaction(["buildings"], "readonly");
-		const objectStore = transaction.objectStore("buildings");
-		const request = objectStore.get(id);
+			request.onupgradeneeded = (event: IDBVersionChangeEvent) => {
+				const db = (event.target as IDBOpenDBRequest).result;
+				const objectStore = db.createObjectStore(Database.storeName, {
+					keyPath: "id",
+					autoIncrement: true,
+				});
+				objectStore.createIndex("id", "id", { unique: true });
+				objectStore.createIndex("name", "name", { unique: false });
+				objectStore.createIndex("type", "type", { unique: false });
+			};
+		});
+	}
 
-		request.onerror = () => {
-			reject(request.error);
-		};
+	public static async init(): Promise<Database> {
+		if (Database.singleton) {
+			return Database.singleton;
+		}
 
-		request.onsuccess = () => {
-			var b = new building();
-			b.set(request.result);
-			resolve(b);
-		};
-	});
-}
-export function getAllElements(db: IDBDatabase): Promise<building[]> {
-	return new Promise((resolve, reject) => {
-		const transaction = db.transaction(["buildings"], "readonly");
-		const objectStore = transaction.objectStore("buildings");
-		const request = objectStore.getAll();
+		if (!Database.initPromise) {
+			Database.initPromise = Database.openDatabase()
+				.then((db) => {
+					const database = new Database();
+					database.connection = db;
+					Database.singleton = database;
+					return database;
+				})
+				.catch((error) => {
+					Database.initPromise = null;
+					throw error;
+				});
+		}
 
-		request.onerror = () => {
-			reject(request.error);
-		};
+		return Database.initPromise;
+	}
 
-		request.onsuccess = () => {
-			let buildings: building[] = [];
-			request.result.forEach((d) => {
-				var b = new building();
-				b.set(d);
-				buildings.push(b);
-			});
-			resolve(buildings);
-		};
-	});
-}
-export function deleteItemById(db: IDBDatabase, id: number): Promise<void> {
-	return new Promise((resolve, reject) => {
-		const transaction = db.transaction(["buildings"], "readwrite");
-		const objectStore = transaction.objectStore("buildings");
-		const request = objectStore.delete(id);
+	public static getInstance(): Database {
+		if (!Database.singleton) {
+			throw new Error("Database has not been initialized. Call Database.init() first.");
+		}
 
-		request.onerror = () => {
-			reject(request.error);
-		};
+		return Database.singleton;
+	}
 
-		request.onsuccess = () => {
-			resolve();
-		};
-	});
+	public static isInitialized(): boolean {
+		return Database.singleton !== null;
+	}
+
+	private connectionOrThrow(): IDBDatabase {
+		if (!this.connection) {
+			throw new Error("Database has not been initialized. Call Database.init() first.");
+		}
+
+		return this.connection;
+	}
+
+	private getStore(mode: IDBTransactionMode): IDBObjectStore {
+		return this.connectionOrThrow()
+			.transaction([Database.storeName], mode)
+			.objectStore(Database.storeName);
+	}
+
+	public addData(building: LsspBuilding | LsspBuildingNoID): Promise<void> {
+		return new Promise((resolve, reject) => {
+			const request = this.getStore("readwrite").put(building);
+
+			request.onerror = () => {
+				reject(request.error);
+			};
+
+			request.onsuccess = () => {
+				resolve();
+			};
+		});
+	}
+
+	public getElementById(id: number): Promise<building> {
+		return new Promise((resolve, reject) => {
+			const request = this.getStore("readonly").get(id);
+
+			request.onerror = () => {
+				reject(request.error);
+			};
+
+			request.onsuccess = () => {
+				const b = new building();
+				b.set(request.result);
+				resolve(b);
+			};
+		});
+	}
+
+	public getAllElements(): Promise<building[]> {
+		return new Promise((resolve, reject) => {
+			const request = this.getStore("readonly").getAll();
+
+			request.onerror = () => {
+				reject(request.error);
+			};
+
+			request.onsuccess = () => {
+				const buildings: building[] = [];
+				request.result.forEach((d) => {
+					const b = new building();
+					b.set(d);
+					buildings.push(b);
+				});
+				resolve(buildings);
+			};
+		});
+	}
+
+	public deleteItemById(id: number): Promise<void> {
+		return new Promise((resolve, reject) => {
+			const request = this.getStore("readwrite").delete(id);
+
+			request.onerror = () => {
+				reject(request.error);
+			};
+
+			request.onsuccess = () => {
+				resolve();
+			};
+		});
+	}
 }

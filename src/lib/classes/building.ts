@@ -1,5 +1,5 @@
 import { Building } from "@lss-manager/missionchief-type-definitions/src/api/Building";
-import { dictionary } from "../../core";
+import { AppDictionary } from "../../dictionary";
 import { LsspBuilding } from "../../types/types";
 
 export class building {
@@ -116,26 +116,23 @@ export class building {
 		this._lng = latlng.lng;
 	}
 
-	public get leitstellenName() {
-		return new Promise<string>((resolve, reject) => {
-			$.getJSON("../api/buildings", (data: Building[]) => {
-				const filteredData = data.filter((l) => l.id == this._leitstelle);
-				const leitstellenName = filteredData[0]?.caption || "";
-				resolve(leitstellenName);
-			}).fail((jqXHR, textStatus, errorThrown) => {
-				reject(errorThrown);
-			});
-		});
+	public async getLeitstellenName(): Promise<string> {
+		try {
+			const data = (await $.getJSON("../api/buildings")) as Building[];
+			return data.find((l) => l.id == this._leitstelle)?.caption || "";
+		} catch (error) {
+			throw error;
+		}
 	}
 	public get typeName() {
 		if (this._type) {
-			return dictionary[this._type].caption;
+			return AppDictionary.getCaption(this._type);
 		}
 		return "";
 	}
 	public get iconURL() {
 		if (this._type) {
-			return dictionary[this._type].icon;
+			return AppDictionary.getIcon(this._type);
 		}
 		return "";
 	}
