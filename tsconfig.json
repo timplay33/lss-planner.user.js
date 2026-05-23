@@ -4,6 +4,7 @@
 		"target": "ES2022",
 		"moduleResolution": "node",
 		"resolveJsonModule": true,
-		"strict": true
+		"strict": true,
+		"types": ["jquery", "leaflet"],
 	}
 }
