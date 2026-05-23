@@ -1,5 +1,6 @@
 import { logMessage } from "..";
 import { building } from "../classes/building";
+import MapButtonsTemplate from "../../modals/templates/map-buttons.hbs";
 
 declare const map: L.Map;
 declare var L: any;
@@ -9,7 +10,7 @@ export function addButtonsToMap() {
 		onAdd: function () {
 			var el = L.DomUtil.create("div", "leaflet-bar my-control");
 
-			el.innerHTML = `<button id="plan-new-building" class="btn btn-xs ajax btn-default">Neues Gebäude planen</button><button id="save-plan-new-building" class="btn btn-xs ajax btn-default">Speichern</button>`;
+			el.innerHTML = MapButtonsTemplate({});
 
 			return el;
 		},

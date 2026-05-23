@@ -10,13 +10,13 @@ module.exports = {
 		publicPath: "/dist/",
 	},
 	resolve: {
-		extensions: [".ts", ".js", ".html"], // Resolve TypeScript, JavaScript and template files
+		extensions: [".ts", ".js", ".hbs"], // Resolve TypeScript, JavaScript and template files
 	},
 	module: {
 		rules: [
 			{
-				test: /\.html$/,
-				type: "asset/source",
+				test: /\.hbs$/,
+				loader: 'handlebars-loader'
 			},
 			{
 				test: /\.ts$/, // Apply ts-loader for .ts files

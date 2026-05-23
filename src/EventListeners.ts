@@ -17,6 +17,8 @@ import {
 } from "./lib/classes/marker";
 import { getNotes, notesMarker } from "./lib/notes";
 import { Modal_Building, Modal_Building_Edit, Modal_Main } from "./modals";
+import BuildingRowTemplate from "./modals/templates/building-row.hbs";
+import ExportNotesTemplate from "./modals/templates/export-notes.hbs";
 export function SetEventListeners() {
 	// Main Modal
 	async function LsspMainModal() {
@@ -28,7 +30,11 @@ export function SetEventListeners() {
 			.then((buildings) =>
 				buildings.sort().forEach((b) => {
 					$("#lssp-modal-dash-table-body").append(
-						`<tr><td><img src="${b.iconURL}" alt="icon ${b.typeName}"></td><td><a id="lssp-modal-dash-table-body-link">${b.name}</a></td><td>${b.typeName}</td></tr>`
+						BuildingRowTemplate({
+							iconURL: b.iconURL,
+							name: b.name,
+							typeName: b.typeName,
+						})
 					);
 					let Buttons = document.querySelectorAll(
 						`#lssp-modal-dash-table-body-link`
@@ -133,12 +139,13 @@ export function SetEventListeners() {
 			});
 			console.log(buildings);
 			buildings.forEach((b) => {
-				$("#lssp-modal-body-output").append(`
-						<tr>
-						<td ><img src="${b.iconURL}" alt="icon ${b.typeName}"></td>
-						<td >${b.name}</td>
-						<td >${b.typeName}</td>
-					</tr>`);
+				$("#lssp-modal-body-output").append(
+					BuildingRowTemplate({
+						iconURL: b.iconURL,
+						name: b.name,
+						typeName: b.typeName,
+					})
+				);
 			});
 			$("#lssp-modal-import-save").on("click", function () {
 				buildings.forEach((b) => {
@@ -163,7 +170,7 @@ export function SetEventListeners() {
 			notesMarker.end
 		}`;
 
-		let msg = `<h2>This feature is currently disabled! But you may copy the text below into your notes:</h2> \n${save}`;
+		let msg = ExportNotesTemplate({ save });
 
 		const div = document.createElement("div");
 		div.innerHTML = msg;
@@ -187,12 +194,13 @@ export function SetEventListeners() {
 		});
 		console.log(buildings);
 		buildings.forEach((b) => {
-			$("#lssp-modal-body-output").append(`
-				<tr>
-				<td ><img src="${b.iconURL}" alt="icon ${b.typeName}"></td>
-				<td >${b.name}</td>
-				<td >${b.typeName}</td>
-			</tr>`);
+			$("#lssp-modal-body-output").append(
+				BuildingRowTemplate({
+					iconURL: b.iconURL,
+					name: b.name,
+					typeName: b.typeName,
+				})
+			);
 		});
 		$("#lssp-modal-import-save").on("click", function () {
 			buildings.forEach((b) => {
