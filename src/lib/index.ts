@@ -42,19 +42,62 @@ export function getLeitstellenOptions(): SelectOption[] {
 	return leitstellenOptions;
 }
 
-declare const building_new_marker: any;
 declare var L: any;
-declare function building_new_dragend(): any;
+
+function getPageValue<T>(key: string): T | undefined {
+	return (window as unknown as Record<string, T | undefined>)[key];
+}
+
+async function waitForElement(selector: string, timeoutMs = 3000): Promise<Element | null> {
+	const start = Date.now();
+	while (Date.now() - start < timeoutMs) {
+		const element = document.querySelector(selector);
+		if (element) return element;
+		await sleep(100);
+	}
+	return null;
+}
+
+function setInputValue(selector: string, value: number): boolean {
+	const input = document.querySelector<HTMLInputElement>(selector);
+	if (!input) return false;
+	input.value = String(value);
+	input.dispatchEvent(new Event("input", { bubbles: true }));
+	input.dispatchEvent(new Event("change", { bubbles: true }));
+	return true;
+}
+
+function setBuildingCoordinates(b: building): void {
+	const marker = getPageValue<{ setLatLng: (latLng: L.LatLng) => void }>(
+		"building_new_marker"
+	);
+	const dragend = getPageValue<() => void>("building_new_dragend");
+
+	if (marker) {
+		marker.setLatLng(L.latLng(b.lat, b.lng));
+		dragend?.();
+		return;
+	}
+
+	const latitudeSet = setInputValue("#building_latitude", b.lat)
+		|| setInputValue('input[name="building[latitude]"]', b.lat);
+	const longitudeSet = setInputValue("#building_longitude", b.lng)
+		|| setInputValue('input[name="building[longitude]"]', b.lng);
+
+	if (!latitudeSet || !longitudeSet) {
+		throw new Error("Could not set building coordinates on the build form.");
+	}
+}
+
 export async function buildBuilding(b: building) {
 	const db = Database.getInstance();
-	let modal = $(`#lssp-building-modal`);
-	modal.modal("hide");
+	$(`#lssp-building-modal`).modal("hide");
+	$(`#lssp-modal`).modal("hide");
 	document.getElementById("build_new_building")?.click();
-	await sleep(500);
+	await waitForElement("#new_building");
 	$("#building_building_type").val(b.type).trigger("change");
 	$("#building_name").val(b.name).trigger("keydown");
-	building_new_marker.setLatLng(L.latLng(b.lat, b.lng));
-	building_new_dragend();
+	setBuildingCoordinates(b);
 	$("#building_leitstelle_building_id").val(b.leitstelle).trigger("change");
 	$("#new_building").on("submit", function () {
 		logMessage("Build: " + b.name);
