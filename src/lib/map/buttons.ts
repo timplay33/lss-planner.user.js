@@ -1,5 +1,8 @@
 import { logMessage } from "..";
 import { building } from "../classes/building";
+import { Modal_Building_Edit } from "../../modals";
+import { mountTemplate } from "../render";
+import MapButtonsTemplate from "../../modals/templates/map-buttons.hbs";
 
 declare const map: L.Map;
 declare var L: any;
@@ -9,7 +12,7 @@ export function addButtonsToMap() {
 		onAdd: function () {
 			var el = L.DomUtil.create("div", "leaflet-bar my-control");
 
-			el.innerHTML = `<button id="plan-new-building" class="btn btn-xs ajax btn-default">Neues Gebäude planen</button><button id="save-plan-new-building" class="btn btn-xs ajax btn-default">Speichern</button>`;
+			mountTemplate(el, MapButtonsTemplate, {});
 
 			return el;
 		},
@@ -39,19 +42,11 @@ export function addButtonsToMap() {
 
 function addBuilding() {
 	function saveBuilding() {
-		$("#lssp-building-edit-modal").modal("show");
 		let b = new building();
 		b.type = NaN;
 		let latlng = marker.getLatLng();
 		b.setLatLng(latlng);
-		sessionStorage.setItem(
-			"active_building",
-			JSON.stringify(b.getAllProperties())
-		);
-
-		$("#lssp-building-modal-building-name").val(b.name);
-		$("#lssp-building-modal-building-type").val(b.type);
-		$("#lssp-building-modal-building-leitstelle").val(b.leitstelle);
+		void Modal_Building_Edit.openWithData(b);
 	}
 
 	let btn = document.getElementById("plan-new-building");

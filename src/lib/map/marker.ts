@@ -1,12 +1,12 @@
-import { db } from "../../core";
-import { getAllElements } from "../../db";
+import { Database } from "../../db";
 import { CustomMarker } from "../classes/marker";
 
 export async function setMarkers() {
 	var markers: CustomMarker[] = [];
-	const buildings = await getAllElements(db);
+	const db = Database.getInstance();
+	const buildings = await db.getAllElements();
 	buildings.forEach((building) => {
-		let m = new CustomMarker(building, building.iconURL);
+		let m = new CustomMarker(building, building.mapIconURL);
 		m.addToMap();
 		markers.push(m);
 	});

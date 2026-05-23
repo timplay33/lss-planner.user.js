@@ -1,8 +1,8 @@
 // ==UserScript==
-// @name         LSS-Planner
+// @name         LSS-Planner DEV Helper
 // @namespace    https://timplay33.github.io/lss-planner.user.js/
 // @homepage     https://github.com/timplay33/lss-planner.user.js/
-// @version      0.6.0
+// @version      dev
 // @description  LSS-Planner
 // @author       Tim Heidler git:@timplay33
 // @match        https://www.leitstellenspiel.de/
@@ -16,7 +16,7 @@ sessionStorage.setItem("dbName", "LSS-Planner");
 
 (function () {
 	const script = document.createElement("script");
-	script.src = `https://timplay33.github.io/lss-planner.user.js/dist/core.js`;
+	script.src = `http://127.0.0.1:5500/dist/core.js`;
 	script.setAttribute("type", "module");
 	script.setAttribute("async", "");
 	document.head.append(script);

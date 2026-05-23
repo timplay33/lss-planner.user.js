@@ -9,17 +9,20 @@ export interface LsspBuilding {
 
 export type LsspBuildingNoID = Omit<LsspBuilding, "id">;
 
-export interface Dictionary {
-	[key: number]: {
-		icon: string;
-		caption: string;
-	};
+export interface DictionaryEntry {
+	readonly icon: string;
+	readonly caption: string;
+	readonly category?: string;
 }
 
-export type Icons = {
-	[key: number]: L.Icon;
-};
+export type DictionaryMap = Readonly<Record<string, DictionaryEntry>>;
 
-export type Markers = {
-	[key: number]: L.Marker;
-};
+export type BuildingTypeOption = Readonly<{
+	key: number;
+	caption: string;
+	category?: string;
+}>;
+
+export type Icons = Readonly<Record<number, L.Icon>>;
+
+export type Markers = Readonly<Record<number, L.Marker>>;

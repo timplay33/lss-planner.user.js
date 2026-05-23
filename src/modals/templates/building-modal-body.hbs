@@ -1,0 +1,32 @@
+<div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+  <img
+    src="{{iconURL}}"
+    alt="icon {{typeName}}"
+    id="lssp-building-modal-body-icon"
+    style="width: 40px; height: 46px; flex: 0 0 auto; object-fit: contain;"
+  />
+  <div style="min-width: 0;">
+    <h1
+      id="lssp-building-modal-body-title"
+      style="margin: 0 0 4px; font-size: 24px; line-height: 1.2; word-break: break-word;"
+    >
+      {{name}}
+    </h1>
+    <p
+      id="lssp-building-modal-body-type"
+      style="display: inline-block; margin: 0; padding: 3px 8px; border: 1px solid #d9e2ec; border-radius: 4px; background: #f7f9fb; color: #52606d; font-size: 12px; line-height: 1.4;"
+    >
+      {{typeName}}
+    </p>
+  </div>
+</div>
+<div
+  style="display: grid; grid-template-columns: max-content minmax(0, 1fr); column-gap: 16px; row-gap: 8px; margin-bottom: 18px; padding: 12px 0; border-top: 1px solid #e6ebf1; border-bottom: 1px solid #e6ebf1;"
+>
+  <span style="color: #6b7280;">Leitstelle</span>
+  <strong id="lssp-building-modal-body-leitstelle" style="font-weight: 600;">{{leitstelleName}}</strong>
+  <span style="color: #6b7280;">Latitude</span>
+  <span id="lssp-building-modal-body-lat">{{lat}}</span>
+  <span style="color: #6b7280;">Longitude</span>
+  <span id="lssp-building-modal-body-lng">{{lng}}</span>
+</div>

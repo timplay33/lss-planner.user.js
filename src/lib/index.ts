@@ -1,7 +1,14 @@
 import { Building } from "@lss-manager/missionchief-type-definitions/src/api/Building";
-import { db } from "../core";
+import { Database } from "../db";
 import { building } from "./classes/building";
-import { deleteItemById } from "../db";
+import MenuEntryTemplate from "../modals/templates/menu-entry.hbs";
+
+type SelectOption = {
+	key: number;
+	caption: string;
+};
+
+let leitstellenOptions: SelectOption[] = [];
 
 export function logMessage(...message: Array<any>): void {
 	console.log(
@@ -15,52 +22,86 @@ export function sleep(ms: number): Promise<void> {
 }
 
 export function addMenuEntry() {
-	/** Add divider  */
-	let divider = document.createElement("li");
-	divider.setAttribute("class", "divider");
-	divider.setAttribute("role", "presentation");
-	document
-		.getElementById("logout_button")
-		?.parentElement?.parentElement?.appendChild(divider);
-
-	/** Add button */
-	let button = document.createElement("a");
-	button.setAttribute("href", "javascript: void(0)");
-	button.setAttribute("id", "lssp-button");
-	button.append("Lss-Planner");
-	let button_li = document.createElement("li");
-	button_li.appendChild(button);
-	document
-		.getElementById("logout_button")
-		?.parentElement?.parentElement?.appendChild(button_li);
+	const logout = document.getElementById("logout_button");
+	const parent = logout?.parentElement?.parentElement;
+	if (!parent) return;
+	parent.insertAdjacentHTML("beforeend", MenuEntryTemplate({ label: "Lss-Planner" }));
 }
 
-export function addLeitstellenToEditModal() {
-	$.getJSON("../api/buildings", function (data) {
-		data = data.filter((leitstelle: Building) => leitstelle.building_type == 7);
-		data.forEach((leitstelle: Building) => {
-			$("#lssp-building-modal-building-leitstelle").append(
-				`<option value="${leitstelle.id}">${leitstelle.caption}</option>`
-			);
-		});
-	});
+export async function addLeitstellenToEditModal() {
+	const data = await $.getJSON("../api/buildings");
+	leitstellenOptions = (data as Array<Building>)
+		.filter((leitstelle: Building) => leitstelle.building_type == 7)
+		.map((leitstelle: Building) => ({
+			key: leitstelle.id,
+			caption: leitstelle.caption,
+		}));
 }
-declare const building_new_marker: any;
+
+export function getLeitstellenOptions(): SelectOption[] {
+	return leitstellenOptions;
+}
+
 declare var L: any;
-declare function building_new_dragend(): any;
+
+function getPageValue<T>(key: string): T | undefined {
+	return (window as unknown as Record<string, T | undefined>)[key];
+}
+
+async function waitForElement(selector: string, timeoutMs = 3000): Promise<Element | null> {
+	const start = Date.now();
+	while (Date.now() - start < timeoutMs) {
+		const element = document.querySelector(selector);
+		if (element) return element;
+		await sleep(100);
+	}
+	return null;
+}
+
+function setInputValue(selector: string, value: number): boolean {
+	const input = document.querySelector<HTMLInputElement>(selector);
+	if (!input) return false;
+	input.value = String(value);
+	input.dispatchEvent(new Event("input", { bubbles: true }));
+	input.dispatchEvent(new Event("change", { bubbles: true }));
+	return true;
+}
+
+function setBuildingCoordinates(b: building): void {
+	const marker = getPageValue<{ setLatLng: (latLng: L.LatLng) => void }>(
+		"building_new_marker"
+	);
+	const dragend = getPageValue<() => void>("building_new_dragend");
+
+	if (marker) {
+		marker.setLatLng(L.latLng(b.lat, b.lng));
+		dragend?.();
+		return;
+	}
+
+	const latitudeSet = setInputValue("#building_latitude", b.lat)
+		|| setInputValue('input[name="building[latitude]"]', b.lat);
+	const longitudeSet = setInputValue("#building_longitude", b.lng)
+		|| setInputValue('input[name="building[longitude]"]', b.lng);
+
+	if (!latitudeSet || !longitudeSet) {
+		throw new Error("Could not set building coordinates on the build form.");
+	}
+}
+
 export async function buildBuilding(b: building) {
-	let modal = $(`#lssp-building-modal`);
-	modal.modal("hide");
+	const db = Database.getInstance();
+	$(`#lssp-building-modal`).modal("hide");
+	$(`#lssp-modal`).modal("hide");
 	document.getElementById("build_new_building")?.click();
-	await sleep(500);
+	await waitForElement("#new_building");
 	$("#building_building_type").val(b.type).trigger("change");
 	$("#building_name").val(b.name).trigger("keydown");
-	building_new_marker.setLatLng(L.latLng(b.lat, b.lng));
-	building_new_dragend();
+	setBuildingCoordinates(b);
 	$("#building_leitstelle_building_id").val(b.leitstelle).trigger("change");
 	$("#new_building").on("submit", function () {
 		logMessage("Build: " + b.name);
-		deleteItemById(db, b.id);
+		db.deleteItemById(b.id);
 	});
 }
 
