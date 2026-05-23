@@ -104,30 +104,65 @@
             </table>
           </div>
           <div role="tabpanel" class="tab-pane" id="lssp-modal-backup-panel">
-            <div>
-              <h2>JSON-Datei</h2>
-              <input
-                type="file"
-                id="lssp-modal-selectFiles"
-                value="Import"
-              /><br /><button id="lssp-modal-import" class="btn btn-default">
-                Importieren</button
-              ><button id="lssp-modal-export" class="btn btn-success">
-                Herunterladen
-              </button>
+            <div class="row">
+              <div class="col-sm-6">
+                <div class="panel panel-default">
+                  <div class="panel-heading">
+                    <strong>JSON-Datei</strong>
+                  </div>
+                  <div class="panel-body">
+                    <div class="form-group">
+                      <label for="lssp-modal-selectFiles">Backup-Datei</label>
+                      <input
+                        type="file"
+                        id="lssp-modal-selectFiles"
+                        class="form-control"
+                        accept=".json,application/json"
+                      />
+                    </div>
+                    <button id="lssp-modal-import" class="btn btn-default" type="button">
+                      Importieren
+                    </button>
+                    <button id="lssp-modal-export" class="btn btn-success" type="button">
+                      Herunterladen
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <div class="col-sm-6">
+                <div class="panel panel-default">
+                  <div class="panel-heading">
+                    <strong>Notizen</strong>
+                  </div>
+                  <div class="panel-body">
+                    <button id="lssp-modal-export-notes" class="btn btn-success" type="button">
+                      in Notizen Exportieren
+                    </button>
+                    <button id="lssp-modal-import-notes" class="btn btn-default" type="button">
+                      aus Notizen Importieren
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div>
-              <h2>Notizen</h2>
-              <button id="lssp-modal-export-notes" class="btn btn-success">
-                in Notizen Exportieren</button
-              ><button id="lssp-modal-import-notes" class="btn btn-success">
-                aus Notizen Importieren
-              </button>
-            </div>
-            <div>
-              <h2>Zu Importierende Daten</h2>
+
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                <strong>Import-Vorschau</strong>
+                <span id="lssp-modal-import-count" class="text-muted"></span>
+              </div>
+              <div class="panel-body" style="padding-bottom: 0">
+                <div
+                  id="lssp-modal-backup-status"
+                  class="alert alert-info"
+                  style="margin-bottom: 10px"
+                >
+                  Keine Importdaten geladen.
+                </div>
+              </div>
               <table
                 class="table table-striped tablesorter tablesorter-default"
+                style="margin-bottom: 0"
               >
                 <thead>
                   <tr class="tablesorter-headerRow" role="row">
@@ -139,16 +174,21 @@
                 </thead>
                 <tbody id="lssp-modal-body-output"></tbody>
               </table>
-              <button
-                id="lssp-modal-import-save"
-                class="btn btn-success row"
-                type="button"
-              >
-                Speichern</button
-              ><button id="lssp-modal-delete" class="btn btn-danger">
-                Alles Löschen
-              </button>
+              <div class="panel-footer">
+                <button
+                  id="lssp-modal-import-save"
+                  class="btn btn-success"
+                  type="button"
+                  disabled
+                >
+                  Import speichern
+                </button>
+                <div class="clearfix"></div>
+              </div>
             </div>
+            <button id="lssp-modal-delete" class="btn btn-danger pull-left" type="button">
+                  Alle Pläne löschen
+                </button>
           </div>
           <div
             role="tabpanel"

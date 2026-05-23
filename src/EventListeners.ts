@@ -142,11 +142,14 @@ function renderDashboard(buildings: building[]): void {
 }
 
 function bindSaveImport(buildings: building[], db: Database): void {
-	$("#lssp-modal-import-save").off("click").one("click", function () {
-		void Promise.all(buildings.map((b) => db.addData(b.getAllProperties()))).then(
-			() => location.reload()
-		);
-	});
+	$("#lssp-modal-import-save")
+		.prop("disabled", false)
+		.off("click")
+		.one("click", function () {
+			void Promise.all(
+				buildings.map((b) => db.addData(b.getAllProperties()))
+			).then(() => location.reload());
+		});
 }
 
 function syncCategorySettingsButtons(): void {
@@ -200,6 +203,50 @@ function renderCategorySettings(): void {
 function renderImportRows(output: HTMLElement, buildings: building[]): void {
 	output.replaceChildren();
 	renderBuildingRows(output, buildings.map(toBuildingRowData));
+}
+
+function setBackupStatus(
+	message: string,
+	type: "info" | "success" | "warning" | "danger" = "info"
+): void {
+	const status = document.getElementById("lssp-modal-backup-status");
+	if (!status) return;
+	status.className = `alert alert-${type}`;
+	status.textContent = message;
+}
+
+function setImportCount(count: number): void {
+	const importCount = document.getElementById("lssp-modal-import-count");
+	if (!importCount) return;
+	importCount.textContent = count > 0 ? ` ${count} Einträge` : "";
+}
+
+function clearImportPreview(): void {
+	document.getElementById("lssp-modal-body-output")?.replaceChildren();
+	setImportCount(0);
+	$("#lssp-modal-import-save").prop("disabled", true).off("click");
+}
+
+function parseImportedBuildings(rawData: unknown): building[] {
+	if (!Array.isArray(rawData)) {
+		throw new Error("Die Importdaten müssen eine Liste von Plänen sein.");
+	}
+
+	return rawData.map((rawBuilding) => {
+		const importedBuilding = new building();
+		importedBuilding.set(rawBuilding);
+		return importedBuilding;
+	});
+}
+
+function showImportPreview(buildings: building[], db: Database): void {
+	const output = document.getElementById("lssp-modal-body-output");
+	if (output) {
+		renderImportRows(output, buildings);
+	}
+	setImportCount(buildings.length);
+	setBackupStatus(`${buildings.length} Pläne bereit zum Import.`, "success");
+	bindSaveImport(buildings, db);
 }
 
 export function SetEventListeners() {
@@ -294,24 +341,35 @@ export function SetEventListeners() {
 			"lssp-modal-selectFiles"
 		) as HTMLInputElement;
 		var files: FileList = filesInput.files as FileList;
+		const selectedFile = files.item(0);
+		if (!selectedFile) {
+			clearImportPreview();
+			setBackupStatus("Bitte zuerst eine JSON-Datei auswählen.", "warning");
+			return;
+		}
+
 		var fr = new FileReader();
 
 		fr.onload = function (e) {
-			var result: any = JSON.parse(e.target?.result as string);
-			let buildings: building[] = [];
-			result.forEach((b: any) => {
-				let bd = new building();
-				bd.set(b);
-				buildings.push(bd);
-			});
-			const output = document.getElementById("lssp-modal-body-output");
-			if (output) {
-				renderImportRows(output, buildings);
+			try {
+				var result: unknown = JSON.parse(e.target?.result as string);
+				showImportPreview(parseImportedBuildings(result), db);
+			} catch (error) {
+				clearImportPreview();
+				setBackupStatus(
+					error instanceof Error
+						? error.message
+						: "Die Datei konnte nicht gelesen werden.",
+					"danger"
+				);
 			}
-			bindSaveImport(buildings, db);
+		};
+		fr.onerror = function () {
+			clearImportPreview();
+			setBackupStatus("Die Datei konnte nicht gelesen werden.", "danger");
 		};
 
-		fr.readAsText(files.item(0) as File);
+		fr.readAsText(selectedFile);
 	});
 
 	$("#lssp-modal-export-notes").on("click", async function () {
@@ -331,23 +389,24 @@ export function SetEventListeners() {
 	});
 
 	$("#lssp-modal-import-notes").on("click", async function () {
-		const notes = await getNotes();
-		let start = notes.search(notesMarker.start);
-		let end = notes.search(notesMarker.end);
-		let data = notes.substring(start + notesMarker.start.length + 1, end);
-
-		var result: any = JSON.parse(data);
-		let buildings: building[] = [];
-		result.forEach((b: any) => {
-			let bd = new building();
-			bd.set(b);
-			buildings.push(bd);
-		});
-		const output = document.getElementById("lssp-modal-body-output");
-		if (output) {
-			renderImportRows(output, buildings);
+		try {
+			const notes = await getNotes();
+			let start = notes.search(notesMarker.start);
+			let end = notes.search(notesMarker.end);
+			if (start === -1 || end === -1 || end <= start) {
+				throw new Error("Keine gültigen Importdaten in den Notizen gefunden.");
+			}
+			let data = notes.substring(start + notesMarker.start.length + 1, end);
+			showImportPreview(parseImportedBuildings(JSON.parse(data)), db);
+		} catch (error) {
+			clearImportPreview();
+			setBackupStatus(
+				error instanceof Error
+					? error.message
+					: "Die Notizen konnten nicht importiert werden.",
+				"danger"
+			);
 		}
-		bindSaveImport(buildings, db);
 	});
 
 	$("#lssp-modal-settings-hide-all").on("click", function () {
