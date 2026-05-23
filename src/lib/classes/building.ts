@@ -130,6 +130,12 @@ export class building {
 		}
 		return "";
 	}
+	public get category() {
+		if (Number.isFinite(this._type)) {
+			return AppDictionary.getCategory(this._type);
+		}
+		return "Sonstige";
+	}
 	public get iconURL() {
 		if (Number.isFinite(this._type)) {
 			return AppDictionary.getIcon(this._type, IconVariant.MENU);

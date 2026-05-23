@@ -20,27 +20,6 @@ export class Modal {
 		mountHtml(this.element, innerHTML);
 		this.bindLifecycleEvents();
 		document.body.appendChild(this.element);
-
-		if (this.element.id == "lssp-modal") {
-			if (sessionStorage.getItem("isRdHidden") == "true") {
-				$("#lssp-modal-settings-hide-rd").html("zeigen");
-			}
-			if (sessionStorage.getItem("isFeuHidden") == "true") {
-				$("#lssp-modal-settings-hide-feu").html("zeigen");
-			}
-			if (sessionStorage.getItem("isPolHidden") == "true") {
-				$("#lssp-modal-settings-hide-pol").html("zeigen");
-			}
-			if (sessionStorage.getItem("isThwHidden") == "true") {
-				$("#lssp-modal-settings-hide-thw").html("zeigen");
-			}
-			if (sessionStorage.getItem("isSchoolHidden") == "true") {
-				$("#lssp-modal-settings-hide-school").html("zeigen");
-			}
-			if (sessionStorage.getItem("isOtherHidden") == "true") {
-				$("#lssp-modal-settings-hide-other").html("zeigen");
-			}
-		}
 	}
 
 	private bindLifecycleEvents(): void {

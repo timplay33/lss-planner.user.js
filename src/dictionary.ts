@@ -66,7 +66,7 @@ export class AppDictionary {
 	}
 
 	public static getCategory(type: number): string {
-		return AppDictionary.getEntry(type)?.category ?? "";
+		return AppDictionary.getEntry(type)?.category ?? "Sonstige";
 	}
 
 	public static getBuildingTypeOptions(): ReadonlyArray<BuildingTypeOption> {
@@ -75,6 +75,17 @@ export class AppDictionary {
 
 	public static getBuildingTypes(): ReadonlyArray<BuildingTypeOption> {
 		return AppDictionary.getBuildingTypeOptions();
+	}
+
+	public static getCategories(): ReadonlyArray<string> {
+		return [
+			...new Set(
+				AppDictionary.entriesCache.map((entry) => entry.category || "Sonstige")
+			),
+		]
+			.sort((categoryA, categoryB) =>
+				categoryA.localeCompare(categoryB, "de", { sensitivity: "base" })
+			);
 	}
 }
 

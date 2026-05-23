@@ -1,3 +1,4 @@
+import { AppDictionary } from "./dictionary";
 import { Database } from "./db";
 import {
 	buildBuilding,
@@ -7,33 +8,137 @@ import {
 } from "./lib";
 import { building } from "./lib/classes/building";
 import {
-	feuerwehrMarkerGroup,
-	otherMarkerGroup,
-	polizeiMarkerGroup,
-	rettungsMarkerGroup,
-	schulenMarkerGroup,
-	thwMarkerGroup,
+	isCategoryHidden,
+	setCategoryVisibility,
 } from "./lib/classes/marker";
 import { getNotes, notesMarker } from "./lib/notes";
+import { appendTemplate, mountTemplate } from "./lib/render";
 import { Modal_Building, Modal_Building_Edit, Modal_Main } from "./modals";
 import BuildingRowTemplate from "./modals/templates/building-row.hbs";
+import CategoryRowTemplate from "./modals/templates/category-row.hbs";
 import ExportNotesTemplate from "./modals/templates/export-notes.hbs";
-import { appendTemplate, mountTemplate } from "./lib/render";
 
 type BuildingRowData = {
+	id?: number;
 	iconURL: string;
 	name: string;
 	typeName: string;
+	category: string;
 };
+
+type CategoryRowData = {
+	category: string;
+	count: number;
+};
+
+type DashboardSort = "category-name" | "category-type" | "name" | "type";
+
+const germanCollator = new Intl.Collator("de", { sensitivity: "base" });
 
 function renderBuildingRows(
 	container: HTMLElement,
 	buildings: BuildingRowData[]
 ): void {
-	container.replaceChildren();
 	for (const building of buildings) {
 		appendTemplate(container, BuildingRowTemplate, building);
 	}
+}
+
+function renderCategoryRow(container: HTMLElement, categoryRow: CategoryRowData): void {
+	appendTemplate(container, CategoryRowTemplate, categoryRow);
+}
+
+function matchesSearch(building: building, searchTerm: string): boolean {
+	if (!searchTerm) return true;
+	const haystack = [building.name, building.typeName, building.category]
+		.join(" ")
+		.toLocaleLowerCase("de");
+	return haystack.includes(searchTerm);
+}
+
+function sortBuildings(buildings: building[], sort: DashboardSort): building[] {
+	return [...buildings].sort((buildingA, buildingB) => {
+		const categoryCompare = germanCollator.compare(
+			buildingA.category,
+			buildingB.category
+		);
+		const nameCompare = germanCollator.compare(buildingA.name, buildingB.name);
+		const typeCompare = germanCollator.compare(
+			buildingA.typeName,
+			buildingB.typeName
+		);
+
+		switch (sort) {
+			case "category-type":
+				return categoryCompare || typeCompare || nameCompare;
+			case "name":
+				return nameCompare || categoryCompare || typeCompare;
+			case "type":
+				return typeCompare || nameCompare || categoryCompare;
+			case "category-name":
+			default:
+				return categoryCompare || nameCompare || typeCompare;
+		}
+	});
+}
+
+function toBuildingRowData(b: building): BuildingRowData {
+	return {
+		id: b.id,
+		iconURL: b.iconURL,
+		name: b.name,
+		typeName: b.typeName,
+		category: b.category,
+	};
+}
+
+function renderDashboard(buildings: building[]): void {
+	const dashBody = document.getElementById("lssp-modal-dash-table-body");
+	if (!dashBody) return;
+
+	const searchTerm = (
+		document.getElementById("lssp-modal-dash-search") as HTMLInputElement | null
+	)?.value.trim().toLocaleLowerCase("de") ?? "";
+	const sort = (
+		(document.getElementById("lssp-modal-dash-sort") as HTMLSelectElement | null)
+			?.value ?? "category-name"
+	) as DashboardSort;
+	const visibleBuildings = sortBuildings(
+		buildings.filter((b) => matchesSearch(b, searchTerm)),
+		sort
+	);
+
+	dashBody.replaceChildren();
+	if (sort.startsWith("category")) {
+		const grouped = new Map<string, building[]>();
+		for (const b of visibleBuildings) {
+			const categoryBuildings = grouped.get(b.category) ?? [];
+			categoryBuildings.push(b);
+			grouped.set(b.category, categoryBuildings);
+		}
+
+		for (const [category, categoryBuildings] of grouped) {
+			renderCategoryRow(dashBody, {
+				category,
+				count: categoryBuildings.length,
+			});
+			renderBuildingRows(dashBody, categoryBuildings.map(toBuildingRowData));
+		}
+	} else {
+		renderBuildingRows(dashBody, visibleBuildings.map(toBuildingRowData));
+	}
+
+	const buildingsById = new Map(buildings.map((b) => [String(b.id), b]));
+	const rowLinks = dashBody.querySelectorAll(
+		".lssp-modal-dash-table-body-link"
+	) as NodeListOf<HTMLElement>;
+	rowLinks.forEach((link) => {
+		const selectedBuilding = buildingsById.get(link.dataset.buildingId || "");
+		if (!selectedBuilding) return;
+		link.addEventListener("click", () => {
+			void Modal_Building.openWithData(selectedBuilding);
+		});
+	});
 }
 
 function bindSaveImport(buildings: building[], db: Database): void {
@@ -43,42 +148,83 @@ function bindSaveImport(buildings: building[], db: Database): void {
 		);
 	});
 }
+
+function syncCategorySettingsButtons(): void {
+	const categories = AppDictionary.getCategories();
+	const allHidden = categories.every((category) => isCategoryHidden(category));
+	const allButton = document.getElementById("lssp-modal-settings-hide-all");
+	if (allButton) {
+		allButton.textContent = allHidden ? "Alle zeigen" : "Alle verstecken";
+	}
+
+	for (const category of categories) {
+		const button = document.querySelector<HTMLButtonElement>(
+			`[data-lssp-category-toggle="${CSS.escape(category)}"]`
+		);
+		if (!button) continue;
+		button.textContent = isCategoryHidden(category) ? "zeigen" : "verstecken";
+	}
+}
+
+function renderCategorySettings(): void {
+	const container = document.getElementById("lssp-modal-settings-categories");
+	if (!container) return;
+
+	container.replaceChildren();
+	for (const category of AppDictionary.getCategories()) {
+		const row = document.createElement("div");
+		row.className = "form-inline";
+		row.style.marginBottom = "10px";
+
+		const label = document.createElement("strong");
+		label.textContent = category;
+		label.style.display = "inline-block";
+		label.style.minWidth = "180px";
+
+		const button = document.createElement("button");
+		button.type = "button";
+		button.className = "btn btn-default";
+		button.dataset.lsspCategoryToggle = category;
+		button.addEventListener("click", () => {
+			setCategoryVisibility(category, isCategoryHidden(category));
+			syncCategorySettingsButtons();
+		});
+
+		row.append(label, button);
+		container.appendChild(row);
+	}
+
+	syncCategorySettingsButtons();
+}
+
+function renderImportRows(output: HTMLElement, buildings: building[]): void {
+	output.replaceChildren();
+	renderBuildingRows(output, buildings.map(toBuildingRowData));
+}
+
 export function SetEventListeners() {
 	const db = Database.getInstance();
-	// Main Modal
+	renderCategorySettings();
+
 	async function LsspMainModal() {
 		Modal_Main.open();
-		const buildings = (await db.getAllElements()).sort((a, b) =>
-			a.name.localeCompare(b.name)
-		);
-		const dashBody = document.getElementById("lssp-modal-dash-table-body");
-		if (dashBody) {
-			renderBuildingRows(
-				dashBody,
-				buildings.map((b) => ({
-					iconURL: b.iconURL,
-					name: b.name,
-					typeName: b.typeName,
-				}))
-			);
-		}
-		// Bind each row link to its corresponding building by index.
-		const rowLinks = document.querySelectorAll(
-			".lssp-modal-dash-table-body-link"
-		) as NodeListOf<HTMLElement>;
-		rowLinks.forEach((link, idx) => {
-			const building = buildings[idx];
-			if (!building) return;
-			link.addEventListener("click", () => {
-				void Modal_Building.openWithData(building);
-			});
-		});
+		renderDashboard(await db.getAllElements());
 	}
+
 	$("#lssp-button").on("click", () => {
-		LsspMainModal();
+		void LsspMainModal();
+	});
+	$("#lssp-modal-dash-search").on("input", async () => {
+		renderDashboard(await db.getAllElements());
+	});
+	$("#lssp-modal-dash-sort").on("change", async () => {
+		renderDashboard(await db.getAllElements());
+	});
+	$("#lssp-modal-dash-clear-search").on("click", async () => {
+		$("#lssp-modal-dash-search").val("");
+		renderDashboard(await db.getAllElements());
 	});
 
-	// Edit Modal
 	$("#lssp-building-edit-modal-form").submit(function (event) {
 		event.preventDefault();
 		let b = new building();
@@ -102,7 +248,6 @@ export function SetEventListeners() {
 		location.reload();
 	});
 
-	// Building Modal
 	$("#lssp-building-modal-form").submit(function (event: any) {
 		event.preventDefault();
 		let b = new building();
@@ -111,23 +256,19 @@ export function SetEventListeners() {
 			event.originalEvent.submitter ==
 			document.getElementById("lssp-building-modal-form-delete")
 		) {
-			// Delete Building
 			void db.deleteItemById(b.id);
 			location.reload();
 		} else if (
 			event.originalEvent.submitter ==
 			document.getElementById("lssp-building-modal-form-build")
 		) {
-			// Open Building Build Options
 			buildBuilding(b);
 			logMessage("Building is being built", b.getAllProperties());
 		} else {
-			// Edit Building
 			Modal_Building_Edit.openWithData(b);
 		}
 	});
 
-	// Export Buildings to JSON
 	$("#lssp-modal-export").on("click", async function () {
 		const buildings = await db.getAllElements();
 		const modifiedBuildings = buildings.map((b) => b.getAllProperties());
@@ -136,7 +277,7 @@ export function SetEventListeners() {
 			`LSS-Planner-${convertDate(new Date())}`
 		);
 	});
-	// delete all Buildings
+
 	$("#lssp-modal-delete").on("click", async function () {
 		if (confirm("Wirklich alles Löschen?")) {
 			const buildings = await db.getAllElements();
@@ -147,13 +288,12 @@ export function SetEventListeners() {
 			logMessage("Löschen Abgebrochen");
 		}
 	});
-	// Import Buildings from JSON
+
 	$("#lssp-modal-import").on("click", function () {
 		var filesInput: HTMLInputElement = document.getElementById(
 			"lssp-modal-selectFiles"
 		) as HTMLInputElement;
 		var files: FileList = filesInput.files as FileList;
-
 		var fr = new FileReader();
 
 		fr.onload = function (e) {
@@ -166,14 +306,7 @@ export function SetEventListeners() {
 			});
 			const output = document.getElementById("lssp-modal-body-output");
 			if (output) {
-				renderBuildingRows(
-					output,
-					buildings.map((b) => ({
-						iconURL: b.iconURL,
-						name: b.name,
-						typeName: b.typeName,
-					}))
-				);
+				renderImportRows(output, buildings);
 			}
 			bindSaveImport(buildings, db);
 		};
@@ -181,12 +314,10 @@ export function SetEventListeners() {
 		fr.readAsText(files.item(0) as File);
 	});
 
-	// Export to Notes
 	$("#lssp-modal-export-notes").on("click", async function () {
 		logMessage("Saving to Notes...");
 		const buildings = await db.getAllElements();
 		const modifiedBuildings = buildings.map((b) => b.getAllProperties());
-
 		logMessage("Exporting notes", modifiedBuildings);
 
 		let save = `${notesMarker.start}\n ${JSON.stringify(modifiedBuildings)}\n ${
@@ -199,7 +330,6 @@ export function SetEventListeners() {
 		this.parentElement?.append(div);
 	});
 
-	// import from Notes
 	$("#lssp-modal-import-notes").on("click", async function () {
 		const notes = await getNotes();
 		let start = notes.search(notesMarker.start);
@@ -215,92 +345,19 @@ export function SetEventListeners() {
 		});
 		const output = document.getElementById("lssp-modal-body-output");
 		if (output) {
-			renderBuildingRows(
-				output,
-				buildings.map((b) => ({
-					iconURL: b.iconURL,
-					name: b.name,
-					typeName: b.typeName,
-				}))
-			);
+			renderImportRows(output, buildings);
 		}
 		bindSaveImport(buildings, db);
 	});
 
-	// hide markers options
-	$("#lssp-modal-settings-hide-rd").on("click", function () {
-		if (sessionStorage.getItem("isRdHidden") == "true") {
-			map.addLayer(rettungsMarkerGroup);
-			sessionStorage.setItem("isRdHidden", "false");
-			this.textContent = "verstecken";
-		} else {
-			sessionStorage.setItem("isRdHidden", "true");
-			map.removeLayer(rettungsMarkerGroup);
-			this.textContent = "zeigen";
-		}
-	});
-	$("#lssp-modal-settings-hide-feu").on("click", function () {
-		if (sessionStorage.getItem("isFeuHidden") == "true") {
-			map.addLayer(feuerwehrMarkerGroup);
-			sessionStorage.setItem("isFeuHidden", "false");
-			this.textContent = "verstecken";
-		} else {
-			sessionStorage.setItem("isFeuHidden", "true");
-			map.removeLayer(feuerwehrMarkerGroup);
-			this.textContent = "zeigen";
-		}
-	});
-	$("#lssp-modal-settings-hide-pol").on("click", function () {
-		if (sessionStorage.getItem("isPolHidden") == "true") {
-			map.addLayer(polizeiMarkerGroup);
-			sessionStorage.setItem("isPolHidden", "false");
-			this.textContent = "verstecken";
-		} else {
-			sessionStorage.setItem("isPolHidden", "true");
-			map.removeLayer(polizeiMarkerGroup);
-			this.textContent = "zeigen";
-		}
-	});
-	$("#lssp-modal-settings-hide-thw").on("click", function () {
-		if (sessionStorage.getItem("isThwHidden") == "true") {
-			map.addLayer(thwMarkerGroup);
-			sessionStorage.setItem("isThwHidden", "false");
-			this.textContent = "verstecken";
-		} else {
-			sessionStorage.setItem("isThwHidden", "true");
-			map.removeLayer(thwMarkerGroup);
-			this.textContent = "zeigen";
-		}
-	});
-	$("#lssp-modal-settings-hide-school").on("click", function () {
-		if (sessionStorage.getItem("isSchoolHidden") == "true") {
-			map.addLayer(schulenMarkerGroup);
-			sessionStorage.setItem("isSchoolHidden", "false");
-			this.textContent = "verstecken";
-		} else {
-			sessionStorage.setItem("isSchoolHidden", "true");
-			map.removeLayer(schulenMarkerGroup);
-			this.textContent = "zeigen";
-		}
-	});
-	$("#lssp-modal-settings-hide-other").on("click", function () {
-		if (sessionStorage.getItem("isOtherHidden") == "true") {
-			map.addLayer(otherMarkerGroup);
-			sessionStorage.setItem("isOtherHidden", "false");
-			this.textContent = "verstecken";
-		} else {
-			sessionStorage.setItem("isOtherHidden", "true");
-			map.removeLayer(otherMarkerGroup);
-			this.textContent = "zeigen";
-		}
-	});
 	$("#lssp-modal-settings-hide-all").on("click", function () {
-		$("#lssp-modal-settings-hide-rd").trigger("click");
-		$("#lssp-modal-settings-hide-feu").trigger("click");
-		$("#lssp-modal-settings-hide-pol").trigger("click");
-		$("#lssp-modal-settings-hide-thw").trigger("click");
-		$("#lssp-modal-settings-hide-school").trigger("click");
-		$("#lssp-modal-settings-hide-other").trigger("click");
+		const categories = AppDictionary.getCategories();
+		const shouldShowAll = categories.every((category) =>
+			isCategoryHidden(category)
+		);
+		for (const category of categories) {
+			setCategoryVisibility(category, shouldShowAll);
+		}
+		syncCategorySettingsButtons();
 	});
 }
-declare const map: L.Map;

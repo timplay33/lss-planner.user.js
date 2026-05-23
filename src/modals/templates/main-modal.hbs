@@ -56,6 +56,33 @@
             class="tab-pane active"
             id="lssp-modal-dash-panel"
           >
+            <div class="form-inline" style="margin-bottom: 10px">
+              <div class="form-group" style="margin-right: 10px">
+                <label class="sr-only" for="lssp-modal-dash-search">Suche</label>
+                <input
+                  id="lssp-modal-dash-search"
+                  class="form-control"
+                  type="search"
+                  placeholder="Suche"
+                />
+              </div>
+              <div class="form-group" style="margin-right: 10px">
+                <label for="lssp-modal-dash-sort" style="margin-right: 5px">Sortierung</label>
+                <select id="lssp-modal-dash-sort" class="form-control">
+                  <option value="category-name">Kategorie, Name</option>
+                  <option value="category-type">Kategorie, Typ</option>
+                  <option value="name">Name</option>
+                  <option value="type">Typ</option>
+                </select>
+              </div>
+              <button
+                type="button"
+                class="btn btn-default"
+                id="lssp-modal-dash-clear-search"
+              >
+                Zurücksetzen
+              </button>
+            </div>
             <table
               id="lssp-modal-dash-table"
               class="table table-striped tablesorter tablesorter-default"
@@ -66,6 +93,7 @@
                   <th></th>
                   <th>Name</th>
                   <th>Typ</th>
+                  <th>Kategorie</th>
                 </tr>
               </thead>
               <tbody
@@ -106,6 +134,7 @@
                     <th></th>
                     <th>Name</th>
                     <th>Typ</th>
+                    <th>Kategorie</th>
                   </tr>
                 </thead>
                 <tbody id="lssp-modal-body-output"></tbody>
@@ -127,62 +156,14 @@
             id="lssp-modal-settings-panel"
           >
             <h2>Pläne verstecken</h2>
-            <h4>Alle</h4>
             <button
               type="button"
               class="btn btn-default"
               id="lssp-modal-settings-hide-all"
             >
-              verstecken / zeigen
+              Alle verstecken
             </button>
-            <h4>Feuerwehr</h4>
-            <button
-              type="button"
-              class="btn btn-default"
-              id="lssp-modal-settings-hide-feu"
-            >
-              verstecken
-            </button>
-            <h4>Polizei</h4>
-            <button
-              type="button"
-              class="btn btn-default"
-              id="lssp-modal-settings-hide-pol"
-            >
-              verstecken
-            </button>
-            <h4>Rettungsdienst</h4>
-            <button
-              type="button"
-              class="btn btn-default"
-              id="lssp-modal-settings-hide-rd"
-            >
-              verstecken
-            </button>
-            <h4>THW</h4>
-            <button
-              type="button"
-              class="btn btn-default"
-              id="lssp-modal-settings-hide-thw"
-            >
-              verstecken
-            </button>
-            <h4>Schulen</h4>
-            <button
-              type="button"
-              class="btn btn-default"
-              id="lssp-modal-settings-hide-school"
-            >
-              verstecken
-            </button>
-            <h4>Andere</h4>
-            <button
-              type="button"
-              class="btn btn-default"
-              id="lssp-modal-settings-hide-other"
-            >
-              verstecken
-            </button>
+            <div id="lssp-modal-settings-categories" style="margin-top: 15px"></div>
           </div>
         </div>
       </div>

@@ -3,15 +3,43 @@ import { Database } from "../../db";
 import { building } from "./building";
 import { AppDictionary, IconVariant } from "../../dictionary";
 
-export var feuerwehrMarkerGroup = L.layerGroup().addTo(map),
-	polizeiMarkerGroup = L.layerGroup().addTo(map),
-	rettungsMarkerGroup = L.layerGroup().addTo(map),
-	schulenMarkerGroup = L.layerGroup().addTo(map),
-	otherMarkerGroup = L.layerGroup().addTo(map),
-	thwMarkerGroup = L.layerGroup().addTo(map);
-
 declare const map: L.Map;
 declare var L: any;
+
+const markerGroups = new Map<string, L.LayerGroup>();
+
+export function getCategoryStorageKey(category: string): string {
+	return `lssp-hidden-category:${encodeURIComponent(category)}`;
+}
+
+export function isCategoryHidden(category: string): boolean {
+	return sessionStorage.getItem(getCategoryStorageKey(category)) === "true";
+}
+
+export function getMarkerGroup(category: string): L.LayerGroup {
+	const existingMarkerGroup = markerGroups.get(category);
+	if (existingMarkerGroup) {
+		return existingMarkerGroup;
+	}
+
+	const markerGroup = L.layerGroup();
+	markerGroups.set(category, markerGroup);
+	if (!isCategoryHidden(category)) {
+		markerGroup.addTo(map);
+	}
+
+	return markerGroup;
+}
+
+export function setCategoryVisibility(category: string, isVisible: boolean): void {
+	const markerGroup = getMarkerGroup(category);
+	sessionStorage.setItem(getCategoryStorageKey(category), String(!isVisible));
+	if (isVisible) {
+		map.addLayer(markerGroup);
+		return;
+	}
+	map.removeLayer(markerGroup);
+}
 
 export class CustomMarker {
 	lat: number;
@@ -54,44 +82,9 @@ export class CustomMarker {
 	}
 
 	public addToMap(): void {
-		this.getMarkerGroup().addLayer(this.marker);
-
-		if (sessionStorage.getItem("isRdHidden") == "true") {
-			map.removeLayer(rettungsMarkerGroup);
-		}
-		if (sessionStorage.getItem("isFeuHidden") == "true") {
-			map.removeLayer(feuerwehrMarkerGroup);
-		}
-		if (sessionStorage.getItem("isPolHidden") == "true") {
-			map.removeLayer(polizeiMarkerGroup);
-		}
-		if (sessionStorage.getItem("isThwHidden") == "true") {
-			map.removeLayer(thwMarkerGroup);
-		}
-		if (sessionStorage.getItem("isSchoolHidden") == "true") {
-			map.removeLayer(schulenMarkerGroup);
-		}
-		if (sessionStorage.getItem("isOtherHidden") == "true") {
-			map.removeLayer(otherMarkerGroup);
-		}
-	}
-
-	private getMarkerGroup(): L.LayerGroup {
-		switch (AppDictionary.getCategory(this.buildingType)) {
-			case "Feuerwehr":
-				return feuerwehrMarkerGroup;
-			case "Polizei":
-				return polizeiMarkerGroup;
-			case "Rettungsdienst":
-			case "Spezialrettung":
-				return rettungsMarkerGroup;
-			case "Schulen":
-				return schulenMarkerGroup;
-			case "THW":
-				return thwMarkerGroup;
-			default:
-				return otherMarkerGroup;
-		}
+		getMarkerGroup(AppDictionary.getCategory(this.buildingType)).addLayer(
+			this.marker
+		);
 	}
 
 	public removeFromMap(): void {
