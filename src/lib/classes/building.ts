@@ -125,13 +125,13 @@ export class building {
 		}
 	}
 	public get typeName() {
-		if (this._type) {
+		if (Number.isFinite(this._type)) {
 			return AppDictionary.getCaption(this._type);
 		}
 		return "";
 	}
 	public get iconURL() {
-		if (this._type) {
+		if (Number.isFinite(this._type)) {
 			return AppDictionary.getIcon(this._type);
 		}
 		return "";
