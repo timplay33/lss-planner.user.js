@@ -7,7 +7,7 @@
 	"1": {
 		"icon": "/images/building_fireschool_other.png",
 		"caption": "Feuerwehrschule",
-		"category": "Feuerwehr"
+		"category": "Schulen"
 	},
 	"2": {
 		"icon": "/images/building_rescue_station_other.png",
@@ -17,7 +17,7 @@
 	"3": {
 		"icon": "/images/building_rettungsschule_other.png",
 		"caption": "Rettungsschule",
-		"category": "Rettungsdienst"
+		"category": "Schulen"
 	},
 	"4": {
 		"icon": "/images/building_hospital_other.png",
@@ -42,7 +42,7 @@
 	"8": {
 		"icon": "/images/building_polizeischule_other.png",
 		"caption": "Polizeischule",
-		"category": "Polizei"
+		"category": "Schulen"
 	},
 	"9": {
 		"icon": "/images/building_thw_other.png",
@@ -52,7 +52,7 @@
 	"10": {
 		"icon": "/images/building_thw_school_other.png",
 		"caption": "THW Bundesschule",
-		"category": "THW"
+		"category": "Schulen"
 	},
 	"11": {
 		"icon": "/images/building_bereitschaftspolizei_other.png",
@@ -81,7 +81,7 @@
 	},
 	"16": {
 		"icon": "/images/building_polizeiwache_other.png",
-		"caption": "Verbandszellen",
+		"caption": "Polizeizellen (Nur für den Verband)",
 		"category": "Polizei"
 	},
 	"17": {
@@ -137,11 +137,16 @@
 	"27": {
 		"icon": "/images/building_coastal_rescue_school_other.png",
 		"caption": "Schule für Seefahrt und Seenotrettung",
-		"category": "Spezialrettung"
+		"category": "Schulen"
 	},
 	"28": {
 		"icon": "/images/building_water_rescue_heliport_other.png",
 		"caption": "Hubschrauberstation (Seenotrettung)",
 		"category": "Spezialrettung"
+	},
+	"29": {
+		"icon": "/images/building_highway_police_other.png",
+		"caption": "Autobahnpolizei",
+		"category": "Polizei"
 	}
 }

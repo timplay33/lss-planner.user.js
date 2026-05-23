@@ -1,6 +1,7 @@
 import { Modal_Building } from "../../modals";
 import { Database } from "../../db";
 import { building } from "./building";
+import { AppDictionary } from "../../dictionary";
 
 export var feuerwehrMarkerGroup = L.layerGroup().addTo(map),
 	polizeiMarkerGroup = L.layerGroup().addTo(map),
@@ -51,34 +52,10 @@ export class CustomMarker {
 	public get LatLng() {
 		return [this.lat, this.lng];
 	}
-	public addToMap(): void {
-		switch (this.buildingType) {
-			case 0:
-			case 18:
-				feuerwehrMarkerGroup.addLayer(this.marker);
-				break;
-			case 2:
-			case 20:
-				rettungsMarkerGroup.addLayer(this.marker);
-				break;
-			case 6:
-			case 19:
-				polizeiMarkerGroup.addLayer(this.marker);
-				break;
-			case 3:
-			case 1:
-			case 8:
-			case 10:
-				schulenMarkerGroup.addLayer(this.marker);
-				break;
 
-			case 9:
-				thwMarkerGroup.addLayer(this.marker);
-				break;
-			default:
-				otherMarkerGroup.addLayer(this.marker);
-				break;
-		}
+	public addToMap(): void {
+		this.getMarkerGroup().addLayer(this.marker);
+
 		if (sessionStorage.getItem("isRdHidden") == "true") {
 			map.removeLayer(rettungsMarkerGroup);
 		}
@@ -96,6 +73,24 @@ export class CustomMarker {
 		}
 		if (sessionStorage.getItem("isOtherHidden") == "true") {
 			map.removeLayer(otherMarkerGroup);
+		}
+	}
+
+	private getMarkerGroup(): L.LayerGroup {
+		switch (AppDictionary.getCategory(this.buildingType)) {
+			case "Feuerwehr":
+				return feuerwehrMarkerGroup;
+			case "Polizei":
+				return polizeiMarkerGroup;
+			case "Rettungsdienst":
+			case "Spezialrettung":
+				return rettungsMarkerGroup;
+			case "Schulen":
+				return schulenMarkerGroup;
+			case "THW":
+				return thwMarkerGroup;
+			default:
+				return otherMarkerGroup;
 		}
 	}
 

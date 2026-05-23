@@ -54,6 +54,10 @@ export class AppDictionary {
 		return AppDictionary.getEntry(type)?.icon ?? "";
 	}
 
+	public static getCategory(type: number): string {
+		return AppDictionary.getEntry(type)?.category ?? "";
+	}
+
 	public static getBuildingTypeOptions(): ReadonlyArray<BuildingTypeOption> {
 		return AppDictionary.entriesCache;
 	}
