@@ -1,0 +1,75 @@
+<div
+  class="modal-body"
+  style="height: calc(100vh - 350px); overflow-y: auto"
+>
+  <div class="col-md-12 col-xs-12">
+    <div id="building_name_step">
+      <div class="input-group string required building_name">
+        <div class="input-group-addon">
+          <label class="string required" for="building_name">
+            <abbr title="required">*</abbr>Name
+          </label>
+        </div>
+        <input
+          class="string required form-control"
+          id="lssp-building-modal-building-name"
+          maxlength="40"
+          name="building[name]"
+          size="50"
+          type="text"
+          value="{{name}}"
+          control-id="ControlID-14"
+        />
+      </div>
+    </div>
+    <div class="input-group select required building_building_type">
+      <div class="input-group-addon">
+        <label
+          class="integer required select required"
+          for="lssp-building-modal-building-type"
+          ><abbr title="required">*</abbr>Gebäudetyp</label
+        >
+      </div>
+      <select
+        class="select required form-control"
+        id="lssp-building-modal-building-type"
+        name="building[building_type]"
+      >
+        <option value=""></option>
+        {{#each groups}}
+          <optgroup label="{{this.label}}">
+            {{#each this.options}}
+              <option value="{{this.key}}" {{#if this.selected}}selected{{/if}}>{{this.caption}}</option>
+            {{/each}}
+          </optgroup>
+        {{/each}}
+      </select>
+    </div>
+    <div class="input-group select required building_building_type">
+      <div class="input-group-addon">
+        <label
+          class="integer optional select required"
+          for="lssp-building-modal-building-leitstelle"
+          >Zugeordnete Leitstelle</label
+        >
+      </div>
+      <select
+        class="select required form-control"
+        id="lssp-building-modal-building-leitstelle"
+        name="building[building_type]"
+      >
+        <option value=""></option>
+        {{#each leitstellen}}
+          <option value="{{this.key}}" {{#if this.selected}}selected{{/if}}>{{this.caption}}</option>
+        {{/each}}
+      </select>
+    </div>
+  </div>
+  <button
+    type="submit"
+    id="lssp-building-edit-modal-form-submit"
+    class="btn btn-default"
+  >
+    Speichern
+  </button>
+</div>

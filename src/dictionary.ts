@@ -5,6 +5,10 @@ import type {
 } from "./types/types";
 import * as dictionaryImport from "./public/dictionary.json";
 
+function isBuildingTypeKey(key: string): boolean {
+	return /^\d+$/.test(key);
+}
+
 export class AppDictionary {
 	private static instance: DictionaryMap | null = null;
 	private static entriesCache: ReadonlyArray<BuildingTypeOption> = [];
@@ -15,13 +19,18 @@ export class AppDictionary {
 	}
 
 	public static init(dictionary: DictionaryMap): void {
+		const entries = Object.entries(dictionary).filter(([key]) =>
+			isBuildingTypeKey(key)
+		);
+
 		AppDictionary.instance = dictionary;
 		AppDictionary.entryByType = new Map(
-			Object.entries(dictionary).map(([key, value]) => [Number(key), value])
+			entries.map(([key, value]) => [Number(key), value])
 		);
-		AppDictionary.entriesCache = Object.entries(dictionary).map(([key, value]) => ({
+		AppDictionary.entriesCache = entries.map(([key, value]) => ({
 			key: Number(key),
 			caption: value.caption,
+			category: value.category,
 		}));
 	}
 

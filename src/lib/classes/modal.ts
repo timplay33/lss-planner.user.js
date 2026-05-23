@@ -1,29 +1,27 @@
 import { building } from "./building";
-import {
-	feuerwehrMarkerGroup,
-	otherMarkerGroup,
-	polizeiMarkerGroup,
-	rettungsMarkerGroup,
-	schulenMarkerGroup,
-	thwMarkerGroup,
-} from "./marker";
-declare const map: L.Map;
+import { mountHtml, mountTemplate } from "../render";
+import type { BuildingTypeOption } from "../../types/types";
+
 export class Modal {
-	name: string;
+	public readonly name: string;
+	protected readonly element: HTMLDivElement;
+	private lastFocusedElement: HTMLElement | null = null;
+
 	constructor(name: string, innerHTML: string) {
 		this.name = name;
-		const modal = document.createElement("div");
-		modal.className = "modal fade";
-		modal.id = name;
-		modal.setAttribute("tabindex", "-1");
-		modal.setAttribute("role", "dialog");
-		modal.setAttribute("aria-labelledby", "lssp-modal-label");
-		modal.setAttribute("aria-hidden", "true");
-		modal.style.zIndex = "5000";
-		modal.innerHTML = innerHTML;
-		document.body.appendChild(modal);
+		this.element = document.createElement("div");
+		this.element.className = "modal fade";
+		this.element.id = name;
+		this.element.setAttribute("tabindex", "-1");
+		this.element.setAttribute("role", "dialog");
+		this.element.setAttribute("aria-labelledby", `${name}-label`);
+		this.element.setAttribute("aria-hidden", "true");
+		this.element.style.zIndex = "5000";
+		mountHtml(this.element, innerHTML);
+		this.bindLifecycleEvents();
+		document.body.appendChild(this.element);
 
-		if (modal.id == "lssp-modal") {
+		if (this.element.id == "lssp-modal") {
 			if (sessionStorage.getItem("isRdHidden") == "true") {
 				$("#lssp-modal-settings-hide-rd").html("zeigen");
 			}
@@ -44,60 +42,175 @@ export class Modal {
 			}
 		}
 	}
-	public close() {
-		$("#" + this.name).modal("hide");
+
+	private bindLifecycleEvents(): void {
+		$(this.element).on("show.bs.modal", () => {
+			this.element.setAttribute("aria-hidden", "false");
+			this.element.setAttribute("aria-modal", "true");
+		});
+
+		$(this.element).on("hide.bs.modal", () => {
+			this.restoreFocus();
+		});
+
+		$(this.element).on("hidden.bs.modal", () => {
+			this.element.setAttribute("aria-hidden", "true");
+			this.element.removeAttribute("aria-modal");
+			this.lastFocusedElement = null;
+		});
 	}
+
+	private restoreFocus(): void {
+		const activeElement = document.activeElement as HTMLElement | null;
+		if (!activeElement || !this.element.contains(activeElement)) {
+			return;
+		}
+
+		if (this.lastFocusedElement && document.contains(this.lastFocusedElement)) {
+			this.lastFocusedElement.focus();
+			return;
+		}
+
+		if (!document.body.hasAttribute("tabindex")) {
+			document.body.setAttribute("tabindex", "-1");
+		}
+		document.body.focus();
+	}
+
+	public close() {
+		$(this.element).modal("hide");
+	}
+
 	public open() {
-		$("#" + this.name).modal("show");
+		const activeElement = document.activeElement as HTMLElement | null;
+		this.lastFocusedElement = activeElement && !this.element.contains(activeElement)
+			? activeElement
+			: null;
+		$(this.element).modal("show");
 	}
 }
+
+type BuildingModalContent = {
+	name: string;
+	typeName: string;
+	leitstelleName: string;
+	lat: string;
+	lng: string;
+};
 
 export class BuildingModal extends Modal {
+	private readonly bodyTemplate: (data: BuildingModalContent) => string;
+
+	constructor(
+		name: string,
+		innerHTML: string,
+		bodyTemplate: (data: BuildingModalContent) => string
+	) {
+		super(name, innerHTML);
+		this.bodyTemplate = bodyTemplate;
+	}
+
 	public async openWithData(building: building): Promise<void> {
-		this.open();
 		sessionStorage.setItem(
 			"active_building",
 			JSON.stringify(building.getAllProperties())
 		);
-		let modal_title = document.getElementById("lssp-building-modal-body-title");
-		modal_title ? (modal_title.innerHTML = `${building.name}`) : null;
-
-		let modal_type = document.getElementById("lssp-building-modal-body-type");
-		modal_type ? (modal_type.innerHTML = `${building.typeName}`) : null;
-
-		let modal_lat = document.getElementById("lssp-building-modal-body-lat");
-		modal_lat ? (modal_lat.innerHTML = `Latitude: ${building.lat}`) : null;
-
-		let modal_lng = document.getElementById("lssp-building-modal-body-lng");
-		modal_lng ? (modal_lng.innerHTML = `Longitude: ${building.lng}`) : null;
-
-		let modal_leitstelle = document.getElementById(
-			"lssp-building-modal-body-leitstelle"
-		);
 		const leitstellenName = await building.getLeitstellenName();
-		modal_leitstelle
-			? (modal_leitstelle.innerHTML = `Leitstelle: ${leitstellenName}`)
-			: null;
+		const body = document.getElementById("lssp-building-modal-body-content");
+		if (body) {
+			mountTemplate(body, this.bodyTemplate, {
+				name: building.name || "",
+				typeName: building.typeName || "",
+				leitstelleName: leitstellenName || "-",
+				lat: Number.isFinite(building.lat) ? `${building.lat}` : "-",
+				lng: Number.isFinite(building.lng) ? `${building.lng}` : "-",
+			});
+		}
+		this.open();
 	}
 }
 
+type SelectOption = {
+	key: number;
+	caption: string;
+	selected?: boolean;
+};
+
+type SelectOptionGroup = {
+	label: string;
+	options: SelectOption[];
+};
+
+type BuildingEditModalContent = {
+	name: string;
+	groups: ReadonlyArray<SelectOptionGroup>;
+	leitstellen: SelectOption[];
+};
+
+const germanCollator = new Intl.Collator("de", { sensitivity: "base" });
+
 export class BuildingEditModal extends Modal {
+	private readonly bodyTemplate: (data: BuildingEditModalContent) => string;
+	private readonly buildingTypes: ReadonlyArray<BuildingTypeOption>;
+	private readonly leitstellen: ReadonlyArray<{ key: number; caption: string }>;
+
+	constructor(
+		name: string,
+		innerHTML: string,
+		bodyTemplate: (data: BuildingEditModalContent) => string,
+		buildingTypes: ReadonlyArray<BuildingTypeOption>,
+		leitstellen: ReadonlyArray<{ key: number; caption: string }>
+	) {
+		super(name, innerHTML);
+		this.bodyTemplate = bodyTemplate;
+		this.buildingTypes = buildingTypes;
+		this.leitstellen = leitstellen;
+	}
+
 	public openWithData(building: building): void {
-		this.open();
+		const body = document.getElementById("lssp-building-edit-modal-body");
+		if (body) {
+			mountTemplate(body, this.bodyTemplate, {
+				name: building.name || "",
+				groups: this.getBuildingTypeGroups(building.type),
+				leitstellen: this.leitstellen.map((leitstelle) => ({
+					key: leitstelle.key,
+					caption: leitstelle.caption,
+					selected: leitstelle.key === building.leitstelle,
+				})),
+			});
+		}
 
 		sessionStorage.setItem(
 			"active_building",
 			JSON.stringify(building.getAllProperties())
 		);
+		this.open();
+	}
 
-		let modal_title = document.getElementById(
-			"lssp-building-modal-building-name"
-		);
-		modal_title?.setAttribute("value", building.name || "");
+	private getBuildingTypeGroups(selectedType: number): SelectOptionGroup[] {
+		const grouped = new Map<string, SelectOption[]>();
 
-		$("#lssp-building-modal-building-type").val(building.type || NaN);
-		$("#lssp-building-modal-building-leitstelle").val(
-			building.leitstelle || NaN
-		);
+		for (const buildingType of this.buildingTypes) {
+			const category = buildingType.category || "Sonstige";
+			const options = grouped.get(category) ?? [];
+			options.push({
+				key: buildingType.key,
+				caption: buildingType.caption,
+				selected: buildingType.key === selectedType,
+			});
+			grouped.set(category, options);
+		}
+
+		return [...grouped.entries()]
+			.sort(([categoryA], [categoryB]) =>
+				germanCollator.compare(categoryA, categoryB)
+			)
+			.map(([label, options]) => ({
+				label,
+				options: [...options].sort((optionA, optionB) =>
+					germanCollator.compare(optionA.caption, optionB.caption)
+				),
+			}));
 	}
 }

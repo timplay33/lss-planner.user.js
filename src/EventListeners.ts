@@ -18,6 +18,31 @@ import { getNotes, notesMarker } from "./lib/notes";
 import { Modal_Building, Modal_Building_Edit, Modal_Main } from "./modals";
 import BuildingRowTemplate from "./modals/templates/building-row.hbs";
 import ExportNotesTemplate from "./modals/templates/export-notes.hbs";
+import { appendTemplate, mountTemplate } from "./lib/render";
+
+type BuildingRowData = {
+	iconURL: string;
+	name: string;
+	typeName: string;
+};
+
+function renderBuildingRows(
+	container: HTMLElement,
+	buildings: BuildingRowData[]
+): void {
+	container.replaceChildren();
+	for (const building of buildings) {
+		appendTemplate(container, BuildingRowTemplate, building);
+	}
+}
+
+function bindSaveImport(buildings: building[], db: Database): void {
+	$("#lssp-modal-import-save").off("click").one("click", function () {
+		void Promise.all(buildings.map((b) => db.addData(b.getAllProperties()))).then(
+			() => location.reload()
+		);
+	});
+}
 export function SetEventListeners() {
 	const db = Database.getInstance();
 	// Main Modal
@@ -26,20 +51,28 @@ export function SetEventListeners() {
 		const buildings = (await db.getAllElements()).sort((a, b) =>
 			a.name.localeCompare(b.name)
 		);
-		for (const b of buildings) {
-			$("#lssp-modal-dash-table-body").append(
-				BuildingRowTemplate({
+		const dashBody = document.getElementById("lssp-modal-dash-table-body");
+		if (dashBody) {
+			renderBuildingRows(
+				dashBody,
+				buildings.map((b) => ({
 					iconURL: b.iconURL,
 					name: b.name,
 					typeName: b.typeName,
-				})
+				}))
 			);
-			const buttons = document.querySelectorAll(`#lssp-modal-dash-table-body-link`);
-			const lastButton = buttons[buttons.length - 1];
-			lastButton.addEventListener("click", () => {
-				void Modal_Building.openWithData(b);
-			});
 		}
+		// Bind each row link to its corresponding building by index.
+		const rowLinks = document.querySelectorAll(
+			".lssp-modal-dash-table-body-link"
+		) as NodeListOf<HTMLElement>;
+		rowLinks.forEach((link, idx) => {
+			const building = buildings[idx];
+			if (!building) return;
+			link.addEventListener("click", () => {
+				void Modal_Building.openWithData(building);
+			});
+		});
 	}
 	$("#lssp-button").on("click", () => {
 		LsspMainModal();
@@ -131,21 +164,18 @@ export function SetEventListeners() {
 				bd.set(b);
 				buildings.push(bd);
 			});
-			console.log(buildings);
-			buildings.forEach((b) => {
-				$("#lssp-modal-body-output").append(
-					BuildingRowTemplate({
+			const output = document.getElementById("lssp-modal-body-output");
+			if (output) {
+				renderBuildingRows(
+					output,
+					buildings.map((b) => ({
 						iconURL: b.iconURL,
 						name: b.name,
 						typeName: b.typeName,
-					})
+					}))
 				);
-			});
-			$("#lssp-modal-import-save").on("click", function () {
-				void Promise.all(
-					buildings.map((b) => db.addData(b.getAllProperties()))
-				).then(() => location.reload());
-			});
+			}
+			bindSaveImport(buildings, db);
 		};
 
 		fr.readAsText(files.item(0) as File);
@@ -157,16 +187,14 @@ export function SetEventListeners() {
 		const buildings = await db.getAllElements();
 		const modifiedBuildings = buildings.map((b) => b.getAllProperties());
 
-		console.log(modifiedBuildings);
+		logMessage("Exporting notes", modifiedBuildings);
 
 		let save = `${notesMarker.start}\n ${JSON.stringify(modifiedBuildings)}\n ${
 			notesMarker.end
 		}`;
 
-		let msg = ExportNotesTemplate({ save });
-
 		const div = document.createElement("div");
-		div.innerHTML = msg;
+		mountTemplate(div, ExportNotesTemplate, { save });
 		div.style.cssText = "background-color: black;";
 		this.parentElement?.append(div);
 	});
@@ -185,21 +213,18 @@ export function SetEventListeners() {
 			bd.set(b);
 			buildings.push(bd);
 		});
-		console.log(buildings);
-		buildings.forEach((b) => {
-			$("#lssp-modal-body-output").append(
-				BuildingRowTemplate({
+		const output = document.getElementById("lssp-modal-body-output");
+		if (output) {
+			renderBuildingRows(
+				output,
+				buildings.map((b) => ({
 					iconURL: b.iconURL,
 					name: b.name,
 					typeName: b.typeName,
-				})
+				}))
 			);
-		});
-		$("#lssp-modal-import-save").on("click", function () {
-			void Promise.all(
-				buildings.map((b) => db.addData(b.getAllProperties()))
-			).then(() => location.reload());
-		});
+		}
+		bindSaveImport(buildings, db);
 	});
 
 	// hide markers options
@@ -207,66 +232,66 @@ export function SetEventListeners() {
 		if (sessionStorage.getItem("isRdHidden") == "true") {
 			map.addLayer(rettungsMarkerGroup);
 			sessionStorage.setItem("isRdHidden", "false");
-			this.innerHTML = "verstecken";
+			this.textContent = "verstecken";
 		} else {
 			sessionStorage.setItem("isRdHidden", "true");
 			map.removeLayer(rettungsMarkerGroup);
-			this.innerHTML = "zeigen";
+			this.textContent = "zeigen";
 		}
 	});
 	$("#lssp-modal-settings-hide-feu").on("click", function () {
 		if (sessionStorage.getItem("isFeuHidden") == "true") {
 			map.addLayer(feuerwehrMarkerGroup);
 			sessionStorage.setItem("isFeuHidden", "false");
-			this.innerHTML = "verstecken";
+			this.textContent = "verstecken";
 		} else {
 			sessionStorage.setItem("isFeuHidden", "true");
 			map.removeLayer(feuerwehrMarkerGroup);
-			this.innerHTML = "zeigen";
+			this.textContent = "zeigen";
 		}
 	});
 	$("#lssp-modal-settings-hide-pol").on("click", function () {
 		if (sessionStorage.getItem("isPolHidden") == "true") {
 			map.addLayer(polizeiMarkerGroup);
 			sessionStorage.setItem("isPolHidden", "false");
-			this.innerHTML = "verstecken";
+			this.textContent = "verstecken";
 		} else {
 			sessionStorage.setItem("isPolHidden", "true");
 			map.removeLayer(polizeiMarkerGroup);
-			this.innerHTML = "zeigen";
+			this.textContent = "zeigen";
 		}
 	});
 	$("#lssp-modal-settings-hide-thw").on("click", function () {
 		if (sessionStorage.getItem("isThwHidden") == "true") {
 			map.addLayer(thwMarkerGroup);
 			sessionStorage.setItem("isThwHidden", "false");
-			this.innerHTML = "verstecken";
+			this.textContent = "verstecken";
 		} else {
 			sessionStorage.setItem("isThwHidden", "true");
 			map.removeLayer(thwMarkerGroup);
-			this.innerHTML = "zeigen";
+			this.textContent = "zeigen";
 		}
 	});
 	$("#lssp-modal-settings-hide-school").on("click", function () {
 		if (sessionStorage.getItem("isSchoolHidden") == "true") {
 			map.addLayer(schulenMarkerGroup);
 			sessionStorage.setItem("isSchoolHidden", "false");
-			this.innerHTML = "verstecken";
+			this.textContent = "verstecken";
 		} else {
 			sessionStorage.setItem("isSchoolHidden", "true");
 			map.removeLayer(schulenMarkerGroup);
-			this.innerHTML = "zeigen";
+			this.textContent = "zeigen";
 		}
 	});
 	$("#lssp-modal-settings-hide-other").on("click", function () {
 		if (sessionStorage.getItem("isOtherHidden") == "true") {
 			map.addLayer(otherMarkerGroup);
 			sessionStorage.setItem("isOtherHidden", "false");
-			this.innerHTML = "verstecken";
+			this.textContent = "verstecken";
 		} else {
 			sessionStorage.setItem("isOtherHidden", "true");
 			map.removeLayer(otherMarkerGroup);
-			this.innerHTML = "zeigen";
+			this.textContent = "zeigen";
 		}
 	});
 	$("#lssp-modal-settings-hide-all").on("click", function () {

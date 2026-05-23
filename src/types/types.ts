@@ -12,13 +12,15 @@ export type LsspBuildingNoID = Omit<LsspBuilding, "id">;
 export interface DictionaryEntry {
 	readonly icon: string;
 	readonly caption: string;
+	readonly category?: string;
 }
 
-export type DictionaryMap = Readonly<Record<number, DictionaryEntry>>;
+export type DictionaryMap = Readonly<Record<string, DictionaryEntry>>;
 
 export type BuildingTypeOption = Readonly<{
 	key: number;
 	caption: string;
+	category?: string;
 }>;
 
 export type Icons = Readonly<Record<number, L.Icon>>;

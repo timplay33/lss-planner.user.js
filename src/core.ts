@@ -18,7 +18,7 @@ async function main() {
 	logMessage("Database initialized.");
 
 	// UI
-	addLeitstellenToEditModal();
+	await addLeitstellenToEditModal();
 	initModals();
 	addMenuEntry();
 	SetEventListeners();

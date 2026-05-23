@@ -1,6 +1,14 @@
 import { Building } from "@lss-manager/missionchief-type-definitions/src/api/Building";
 import { Database } from "../db";
 import { building } from "./classes/building";
+import MenuEntryTemplate from "../modals/templates/menu-entry.hbs";
+
+type SelectOption = {
+	key: number;
+	caption: string;
+};
+
+let leitstellenOptions: SelectOption[] = [];
 
 export function logMessage(...message: Array<any>): void {
 	console.log(
@@ -14,35 +22,24 @@ export function sleep(ms: number): Promise<void> {
 }
 
 export function addMenuEntry() {
-	/** Add divider  */
-	let divider = document.createElement("li");
-	divider.setAttribute("class", "divider");
-	divider.setAttribute("role", "presentation");
-	document
-		.getElementById("logout_button")
-		?.parentElement?.parentElement?.appendChild(divider);
-
-	/** Add button */
-	let button = document.createElement("a");
-	button.setAttribute("href", "javascript: void(0)");
-	button.setAttribute("id", "lssp-button");
-	button.append("Lss-Planner");
-	let button_li = document.createElement("li");
-	button_li.appendChild(button);
-	document
-		.getElementById("logout_button")
-		?.parentElement?.parentElement?.appendChild(button_li);
+	const logout = document.getElementById("logout_button");
+	const parent = logout?.parentElement?.parentElement;
+	if (!parent) return;
+	parent.insertAdjacentHTML("beforeend", MenuEntryTemplate({ label: "Lss-Planner" }));
 }
 
-export function addLeitstellenToEditModal() {
-	$.getJSON("../api/buildings", function (data) {
-		data = data.filter((leitstelle: Building) => leitstelle.building_type == 7);
-		data.forEach((leitstelle: Building) => {
-			$("#lssp-building-modal-building-leitstelle").append(
-				`<option value="${leitstelle.id}">${leitstelle.caption}</option>`
-			);
-		});
-	});
+export async function addLeitstellenToEditModal() {
+	const data = await $.getJSON("../api/buildings");
+	leitstellenOptions = (data as Array<Building>)
+		.filter((leitstelle: Building) => leitstelle.building_type == 7)
+		.map((leitstelle: Building) => ({
+			key: leitstelle.id,
+			caption: leitstelle.caption,
+		}));
+}
+
+export function getLeitstellenOptions(): SelectOption[] {
+	return leitstellenOptions;
 }
 
 declare const building_new_marker: any;
