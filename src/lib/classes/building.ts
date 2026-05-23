@@ -1,5 +1,5 @@
 import { Building } from "@lss-manager/missionchief-type-definitions/src/api/Building";
-import { AppDictionary } from "../../dictionary";
+import { AppDictionary, IconVariant } from "../../dictionary";
 import { LsspBuilding } from "../../types/types";
 
 export class building {
@@ -132,7 +132,13 @@ export class building {
 	}
 	public get iconURL() {
 		if (Number.isFinite(this._type)) {
-			return AppDictionary.getIcon(this._type);
+			return AppDictionary.getIcon(this._type, IconVariant.MENU);
+		}
+		return "";
+	}
+	public get mapIconURL() {
+		if (Number.isFinite(this._type)) {
+			return AppDictionary.getIcon(this._type, IconVariant.MAP);
 		}
 		return "";
 	}

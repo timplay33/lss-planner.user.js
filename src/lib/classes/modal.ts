@@ -91,6 +91,7 @@ export class Modal {
 }
 
 type BuildingModalContent = {
+	iconURL: string;
 	name: string;
 	typeName: string;
 	leitstelleName: string;
@@ -119,6 +120,7 @@ export class BuildingModal extends Modal {
 		const body = document.getElementById("lssp-building-modal-body-content");
 		if (body) {
 			mountTemplate(body, this.bodyTemplate, {
+				iconURL: building.iconURL || "",
 				name: building.name || "",
 				typeName: building.typeName || "",
 				leitstelleName: leitstellenName || "-",

@@ -6,7 +6,7 @@ export async function setMarkers() {
 	const db = Database.getInstance();
 	const buildings = await db.getAllElements();
 	buildings.forEach((building) => {
-		let m = new CustomMarker(building, building.iconURL);
+		let m = new CustomMarker(building, building.mapIconURL);
 		m.addToMap();
 		markers.push(m);
 	});

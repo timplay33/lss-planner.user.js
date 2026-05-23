@@ -1,151 +1,151 @@
 {
 	"0": {
-		"icon": "/images/building_fire_other.png",
+		"icon": "building_fire",
 		"caption": "Feuerwache",
 		"category": "Feuerwehr"
 	},
 	"1": {
-		"icon": "/images/building_fireschool_other.png",
+		"icon": "building_fireschool",
 		"caption": "Feuerwehrschule",
 		"category": "Schulen"
 	},
 	"2": {
-		"icon": "/images/building_rescue_station_other.png",
+		"icon": "building_rescue_station",
 		"caption": "Rettungswache",
 		"category": "Rettungsdienst"
 	},
 	"3": {
-		"icon": "/images/building_rettungsschule_other.png",
+		"icon": "building_rettungsschule",
 		"caption": "Rettungsschule",
 		"category": "Schulen"
 	},
 	"4": {
-		"icon": "/images/building_hospital_other.png",
+		"icon": "building_hospital",
 		"caption": "Krankenhaus",
 		"category": "Rettungsdienst"
 	},
 	"5": {
-		"icon": "/images/building_helipad_other.png",
+		"icon": "building_helipad",
 		"caption": "Rettungshubschrauber-Station",
 		"category": "Rettungsdienst"
 	},
 	"6": {
-		"icon": "/images/building_polizeiwache_other.png",
+		"icon": "building_polizeiwache",
 		"caption": "Polizeiwache",
 		"category": "Polizei"
 	},
 	"7": {
-		"icon": "/images/building_leitstelle_other.png",
+		"icon": "building_leitstelle",
 		"caption": "Leitstelle",
 		"category": "Leitstellen"
 	},
 	"8": {
-		"icon": "/images/building_polizeischule_other.png",
+		"icon": "building_polizeischule",
 		"caption": "Polizeischule",
 		"category": "Schulen"
 	},
 	"9": {
-		"icon": "/images/building_thw_other.png",
+		"icon": "building_thw",
 		"caption": "THW",
 		"category": "THW"
 	},
 	"10": {
-		"icon": "/images/building_thw_school_other.png",
+		"icon": "building_thw_school",
 		"caption": "THW Bundesschule",
 		"category": "Schulen"
 	},
 	"11": {
-		"icon": "/images/building_bereitschaftspolizei_other.png",
+		"icon": "building_bereitschaftspolizei",
 		"caption": "Bereitschaftspolizei",
 		"category": "Polizei"
 	},
 	"12": {
-		"icon": "/images/building_seg_other.png",
+		"icon": "building_seg",
 		"caption": "Schnelleinsatzgruppe (SEG)",
 		"category": "Spezialrettung"
 	},
 	"13": {
-		"icon": "/images/building_helipad_polizei_other.png",
+		"icon": "building_helipad_polizei",
 		"caption": "Polizeihubschrauberstation",
 		"category": "Polizei"
 	},
 	"14": {
-		"icon": "/images/building_bereitstellungsraum_other.png",
+		"icon": "building_bereitstellungsraum",
 		"caption": "Bereitstellungsraum",
 		"category": "Sonstige"
 	},
 	"15": {
-		"icon": "/images/building_wasserwacht_other.png",
+		"icon": "building_wasserwacht",
 		"caption": "Wasserrettung",
 		"category": "Spezialrettung"
 	},
 	"16": {
-		"icon": "/images/building_polizeiwache_other.png",
+		"icon": "building_polizeiwache",
 		"caption": "Polizeizellen (Nur für den Verband)",
 		"category": "Polizei"
 	},
 	"17": {
-		"icon": "/images/building_polizeisondereinheiten_other.png",
+		"icon": "building_polizeisondereinheiten",
 		"caption": "Polizei-Sondereinheiten",
 		"category": "Polizei"
 	},
 	"18": {
-		"icon": "/images/building_fire_other.png",
+		"icon": "building_fire",
 		"caption": "Feuerwache (Kleinwache)",
 		"category": "Feuerwehr"
 	},
 	"19": {
-		"icon": "/images/building_polizeiwache_other.png",
+		"icon": "building_polizeiwache",
 		"caption": "Polizeiwache (Kleinwache)",
 		"category": "Polizei"
 	},
 	"20": {
-		"icon": "/images/building_rescue_station_other.png",
+		"icon": "building_rescue_station",
 		"caption": "Rettungswache (Kleinwache)",
 		"category": "Rettungsdienst"
 	},
 	"21": {
-		"icon": "/images/building_rescue_station_other.png",
+		"icon": "building_rescue_station",
 		"caption": "Rettungshundestaffel",
 		"category": "Spezialrettung"
 	},
 	"22": {
-		"icon": "/images/building_complex_other.png",
+		"icon": "building_complex",
 		"caption": "Großer Komplex",
 		"category": "Sonstige"
 	},
 	"23": {
-		"icon": "/images/building_complex_other.png",
+		"icon": "building_complex",
 		"caption": "Kleiner Komplex",
 		"category": "Sonstige"
 	},
 	"24": {
-		"icon": "/images/building_police_horse_other.png",
+		"icon": "building_police_horse",
 		"caption": "Reiterstaffel",
 		"category": "Polizei"
 	},
 	"25": {
-		"icon": "/images/building_mountain_rescue_other.png",
+		"icon": "building_mountain_rescue",
 		"caption": "Bergrettungswache",
 		"category": "Spezialrettung"
 	},
 	"26": {
-		"icon": "/images/building_coastal_rescue_other.png",
+		"icon": "building_coastal_rescue",
 		"caption": "Seenotrettungswache",
 		"category": "Spezialrettung"
 	},
 	"27": {
-		"icon": "/images/building_coastal_rescue_school_other.png",
+		"icon": "building_coastal_rescue_school",
 		"caption": "Schule für Seefahrt und Seenotrettung",
 		"category": "Schulen"
 	},
 	"28": {
-		"icon": "/images/building_water_rescue_heliport_other.png",
+		"icon": "building_water_rescue_heliport",
 		"caption": "Hubschrauberstation (Seenotrettung)",
 		"category": "Spezialrettung"
 	},
 	"29": {
-		"icon": "/images/building_highway_police_other.png",
+		"icon": "building_highway_police",
 		"caption": "Autobahnpolizei",
 		"category": "Polizei"
 	}

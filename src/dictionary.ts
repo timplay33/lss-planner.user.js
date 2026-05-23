@@ -9,6 +9,11 @@ function isBuildingTypeKey(key: string): boolean {
 	return /^\d+$/.test(key);
 }
 
+export enum IconVariant {
+	MAP = "map",
+	MENU = "menu",
+}
+
 export class AppDictionary {
 	private static instance: DictionaryMap | null = null;
 	private static entriesCache: ReadonlyArray<BuildingTypeOption> = [];
@@ -50,8 +55,14 @@ export class AppDictionary {
 		return AppDictionary.getEntry(type)?.caption ?? "";
 	}
 
-	public static getIcon(type: number): string {
-		return AppDictionary.getEntry(type)?.icon ?? "";
+	public static getIcon(
+		type: number,
+		variant: IconVariant = IconVariant.MENU
+	): string {
+		const iconId = AppDictionary.getEntry(type)?.icon;
+		if (!iconId) return "";
+		const suffix = variant === IconVariant.MAP ? "_other" : "";
+		return `/images/${iconId}${suffix}.png`;
 	}
 
 	public static getCategory(type: number): string {

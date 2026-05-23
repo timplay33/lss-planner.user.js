@@ -22,29 +22,31 @@
         style="height: calc(100vh - 350px); overflow-y: auto"
       >
         <div id="lssp-building-modal-body-content"></div>
-        <button
-          type="submit"
-          id="lssp-building-modal-form-build"
-          class="btn btn-success"
-        >
-          Bauen
-        </button>
-        <button
-          type="submit"
-          id="lssp-building-modal-form-submit"
-          class="btn btn-default"
-        >
-          Bearbeiten
-        </button>
-        <button
-          type="submit"
-          id="lssp-building-modal-form-delete"
-          data-confirm="Wirklich Löschen?"
-          data-method="delete"
-          class="btn btn-danger"
-        >
-          Löschen
-        </button>
+        <div style="display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end;">
+          <button
+            type="submit"
+            id="lssp-building-modal-form-build"
+            class="btn btn-success"
+          >
+            Bauen
+          </button>
+          <button
+            type="submit"
+            id="lssp-building-modal-form-submit"
+            class="btn btn-default"
+          >
+            Bearbeiten
+          </button>
+          <button
+            type="submit"
+            id="lssp-building-modal-form-delete"
+            data-confirm="Wirklich Löschen?"
+            data-method="delete"
+            class="btn btn-danger"
+          >
+            Löschen
+          </button>
+        </div>
       </div>
     </form>
   </div>

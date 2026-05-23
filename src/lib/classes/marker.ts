@@ -1,7 +1,7 @@
 import { Modal_Building } from "../../modals";
 import { Database } from "../../db";
 import { building } from "./building";
-import { AppDictionary } from "../../dictionary";
+import { AppDictionary, IconVariant } from "../../dictionary";
 
 export var feuerwehrMarkerGroup = L.layerGroup().addTo(map),
 	polizeiMarkerGroup = L.layerGroup().addTo(map),
@@ -26,7 +26,7 @@ export class CustomMarker {
 		this.lat = building.lat;
 		this.lng = building.lng;
 		this.name = building.name;
-		this.iconUrl = iconUrl || "/images/building_fire_other.png";
+		this.iconUrl = iconUrl || AppDictionary.getIcon(0, IconVariant.MAP);
 		this.marker = this.createMarker();
 		this.buildingId = building.id;
 		this.buildingType = building.type;
