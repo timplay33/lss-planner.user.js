@@ -10,7 +10,7 @@
 		"ts-loader": "^9.6.2",
 		"webpack": "^5.107.2",
 		"webpack-cli": "^7.0.3",
-		"webpack-dev-server": "^5.2.5"
+		"webpack-dev-server": "^5.2.6"
 	},
 	"overrides": {
 		"http-proxy-middleware": "2.0.10",
